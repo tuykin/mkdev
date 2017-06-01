@@ -1,30 +1,20 @@
 require 'date'
 
+KEYS = %i(link title year country date genres duration rating producer starring)
+
 def build_movie(line)
   data = line.split('|')
-  keys = [:link, :title, :year, :country, :date, :genre, :duration, :rating, :producer, :starring]
-  movie = {
-    link: data[0],
-    title: data[1],
-    year: data[2].to_i,
-    country: data[3],
-    date: parse_date(data[4]),
-    genres: data[5].split(','),
-    duration: data[6].to_i,
-    rating: data[7].to_f,
-    producer: data[8],
-    starrings: data[9].split(',')
-  }
-
-  movie
+  values = [
+    data[0], data[1], data[2].to_i, data[3], parse_date(data[4]),
+    data[5].split(','), data[6].to_i, data[7].to_f, data[8], data[9].split(',')
+  ]
+  KEYS.zip(values).to_h
 end
 
 def parse_date(str)
-  arr = str.split('-')
-  arr << '01' if arr.size == 1
-  arr << '01' if arr.size == 2
-  new_str = arr.join('-')
-  Date.parse(new_str)
+  separators_count = str.count('-')
+  (2 - separators_count).times { str << '-01' }
+  Date.parse(str)
 end
 
 def print_movie(movie)
@@ -42,11 +32,7 @@ if !File.file?(file_name)
   return
 end
 
-movies = []
-
-File.foreach(file_name) do |line|
-  movies << build_movie(line)
-end
+movies = File.foreach(file_name).map { |line| build_movie(line) }
 
 five_longest = movies.sort_by { |m| -m[:duration] }.take(5)
 puts '*** 5 longest movies: ***'
@@ -63,9 +49,8 @@ puts
 
 producers = movies.map { |m| m[:producer] }.uniq
 puts '*** producers ordered by surname: ***'
-puts producers.sort { |a, b| a.split(' ').last <=> b.split(' ').last}
+puts producers.sort_by { |m| m.split(' ').last }
 puts
 
-foreign_movies = movies.reject { |m| m[:country] == 'USA' }
 puts '*** foreign (not US) movies amount: ***'
-puts foreign_movies.size
+puts movies.count { |m| m[:country] != 'USA' }

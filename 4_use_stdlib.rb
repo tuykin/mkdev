@@ -3,6 +3,7 @@ require 'date'
 require 'ostruct'
 
 KEYS = %i(link title year country date genres duration rating producer starring)
+MONTH_NAMES = %w(January February March April May June July August September October November December)
 
 # CSV::Converters[:array] = lambda do |s|
 #   begin
@@ -36,6 +37,27 @@ def print_movies(movies)
   movies.each { |m| print_movie(m) }
 end
 
+def get_month_name(pos)
+  MONTH_NAMES[pos - 1]
+end
+
+def print_stats(stats)
+  stats.each do |month, count|
+    puts build_line(month, count)
+  end
+  puts '-' * 15
+  puts build_line('Total', stats.values.sum)
+end
+
+def build_line(header, count)
+  str = ''
+  str += ' ' * (10 - header.length)
+  str += "#{header}: "
+  str += ' ' * (3 - count.to_s.length)
+  str += count.to_s
+  str
+end
+
 file_name = 'movies.txt'
 
 if !File.file?(file_name)
@@ -45,4 +67,10 @@ end
 
 params = { col_sep: '|' }
 movies = CSV.foreach(file_name, params).map { |movie_arr| build_movie(movie_arr) }
-print_movies(movies)
+
+stats = movies
+        .group_by { |m| m.date.month }
+        .sort
+        .map { |g| [get_month_name(g.first), g.last.count] }
+        .to_h
+print_stats(stats)

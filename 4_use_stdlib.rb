@@ -1,5 +1,6 @@
 require 'csv'
 require 'date'
+require 'ostruct'
 
 KEYS = %i(link title year country date genres duration rating producer starring)
 
@@ -24,11 +25,11 @@ def build_movie(data)
     data[0], data[1], data[2].to_i, data[3], parse_date(data[4]),
     data[5].split(','), data[6].to_i, data[7].to_f, data[8], data[9].split(',')
   ]
-  KEYS.zip(values).to_h
+  OpenStruct.new(KEYS.zip(values).to_h)
 end
 
 def print_movie(movie)
-  puts "#{movie[:title]} (#{movie[:country]}; #{movie[:date]}; #{movie[:genres].join('/')}) - #{movie[:duration]} min"
+  puts "#{movie.title} (#{movie.country}; #{movie.date}; #{movie.genres.join('/')}) - #{movie.duration} min"
 end
 
 def print_movies(movies)

@@ -3,7 +3,7 @@ require 'date'
 require 'ostruct'
 
 KEYS = %i(link title year country date genres duration rating producer starring)
-MONTH_NAMES = %w(January February March April May June July August September October November December)
+MONTH_NAMES = %w(UNKNOWN January February March April May June July August September October November December)
 FILE_NAME = 'movies.txt'
 
 if !File.file?(FILE_NAME)
@@ -16,6 +16,10 @@ def parse_date(str)
   Date.parse(str)
 end
 
+def get_month(str)
+  str.split('-')[1]&.to_i || 0
+end
+
 def build_movie(data)
   data = data.to_h
 
@@ -26,6 +30,7 @@ def build_movie(data)
       rating: data[:rating].to_f,
       genres: data[:genres].split(','),
       starring: data[:starring].split(','),
+      month: get_month(data[:date]),
       date: parse_date(data[:date])
     })
   )
@@ -40,14 +45,12 @@ def print_movies(movies)
 end
 
 def get_month_name(pos)
-  MONTH_NAMES[pos - 1]
+  MONTH_NAMES[pos]
 end
 
-movies = CSV
-          .foreach(FILE_NAME, { col_sep: '|', headers: KEYS })
-          .map { |movie_arr| build_movie(movie_arr) }
+movies = CSV.foreach(FILE_NAME, col_sep: '|', headers: KEYS).map { |movie_arr| build_movie(movie_arr) }
 
-five_longest = movies.sort_by(&:duration).reverse!.take(5)
+five_longest = movies.sort_by(&:duration).reverse.take(5)
 puts '*** 5 longest movies: ***'
 print_movies(five_longest)
 puts
@@ -60,9 +63,11 @@ puts '*** 10 comedies: ***'
 print_movies(ten_comedies)
 puts
 
-producers = movies.map(&:producer).uniq
 puts '*** producers ordered by surname: ***'
-puts producers.sort_by { |m| m.split(' ').last }
+puts movies
+      .map(&:producer)
+      .uniq
+      .sort_by { |m| m.split(' ').last }
 puts
 
 puts '*** foreign (not US) movies amount: ***'
@@ -71,7 +76,7 @@ puts
 
 puts '*** by month statistics: ***'
 stats = movies
-        .group_by { |m| m.date.month }
+        .group_by(&:month)
         .sort
         .map { |g| [get_month_name(g.first), g.last.count] }
         .to_h

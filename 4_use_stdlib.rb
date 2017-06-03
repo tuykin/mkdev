@@ -4,29 +4,31 @@ require 'ostruct'
 
 KEYS = %i(link title year country date genres duration rating producer starring)
 MONTH_NAMES = %w(January February March April May June July August September October November December)
+FILE_NAME = 'movies.txt'
 
-# CSV::Converters[:array] = lambda do |s|
-#   begin
-#     raise ArgumentError unless s.include?(',')
-#     s.split(',')
-#   rescue ArgumentError
-#     s
-#   end
-# end
+if !File.file?(FILE_NAME)
+  puts "File '#{FILE_NAME}' not found"
+  return
+end
 
 def parse_date(str)
-  str = str.to_s
-  separators_count = str.count('-')
-  (2 - separators_count).times { str << '-01' }
+  (2 - str.count('-')).times { str << '-01' }
   Date.parse(str)
 end
 
 def build_movie(data)
-  values = [
-    data[0], data[1], data[2].to_i, data[3], parse_date(data[4]),
-    data[5].split(','), data[6].to_i, data[7].to_f, data[8], data[9].split(',')
-  ]
-  OpenStruct.new(KEYS.zip(values).to_h)
+  data = data.to_h
+
+  OpenStruct.new(
+    data.merge({
+      year: data[:year].to_i,
+      duration: data[:duration].to_i,
+      rating: data[:rating].to_f,
+      genres: data[:genres].split(','),
+      starring: data[:starring].split(','),
+      date: parse_date(data[:date])
+    })
+  )
 end
 
 def print_movie(movie)
@@ -41,36 +43,39 @@ def get_month_name(pos)
   MONTH_NAMES[pos - 1]
 end
 
-def print_stats(stats)
-  stats.each do |month, count|
-    puts build_line(month, count)
-  end
-  puts '-' * 15
-  puts build_line('Total', stats.values.sum)
-end
+movies = CSV
+          .foreach(FILE_NAME, { col_sep: '|', headers: KEYS })
+          .map { |movie_arr| build_movie(movie_arr) }
 
-def build_line(header, count)
-  str = ''
-  str += ' ' * (10 - header.length)
-  str += "#{header}: "
-  str += ' ' * (3 - count.to_s.length)
-  str += count.to_s
-  str
-end
+five_longest = movies.sort_by(&:duration).reverse!.take(5)
+puts '*** 5 longest movies: ***'
+print_movies(five_longest)
+puts
 
-file_name = 'movies.txt'
+ten_comedies = movies
+                .select{ |m| m.genres.include?('Comedy') }
+                .sort_by(&:date)
+                .take(10)
+puts '*** 10 comedies: ***'
+print_movies(ten_comedies)
+puts
 
-if !File.file?(file_name)
-  puts "File '#{file_name}' not found"
-  return
-end
+producers = movies.map(&:producer).uniq
+puts '*** producers ordered by surname: ***'
+puts producers.sort_by { |m| m.split(' ').last }
+puts
 
-params = { col_sep: '|' }
-movies = CSV.foreach(file_name, params).map { |movie_arr| build_movie(movie_arr) }
+puts '*** foreign (not US) movies amount: ***'
+puts movies.count { |m| m.country != 'USA' }
+puts
 
+puts '*** by month statistics: ***'
 stats = movies
         .group_by { |m| m.date.month }
         .sort
         .map { |g| [get_month_name(g.first), g.last.count] }
         .to_h
-print_stats(stats)
+stats.each do |month, count|
+  puts "#{month}: #{count}"
+end
+puts "Total: #{stats.values.sum}"

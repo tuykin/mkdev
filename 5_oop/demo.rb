@@ -19,3 +19,15 @@ puts '*** Stats ***'
   puts movies.stats(field).inspect
   puts
 end
+
+movie = movies.all.first
+puts movie.genres.inspect
+puts movie.has_genre?('Crime')
+puts movie.has_genre?('Comedy')
+
+puts Movie.genres.inspect
+begin
+  movie.has_genre?('Tragedy')
+rescue Movie::GenreNotFoundError => e
+  puts e
+end

@@ -25,7 +25,7 @@ puts movie.genres.inspect
 puts movie.has_genre?('Crime')
 puts movie.has_genre?('Comedy')
 
-puts Movie.genres.inspect
+puts movies.genres.inspect
 begin
   movie.has_genre?('Tragedy')
 rescue Movie::GenreNotFoundError => e

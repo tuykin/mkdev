@@ -24,12 +24,24 @@ class MovieCollection
   end
 
   def filter(facet)
-    key = facet.keys.first
-    value = facet.values.first
+    res = all
+    facet.each do |key, value|
+      res = res.select do |m|
+        field = m.send(key)
 
-    return unless %i(genres country).include?(key)
+        if [Regexp, Integer, Range].include?(value.class)
+          if field.is_a?(Array)
+            field.grep(value).any?
+          else
+            value === field
+          end
+        else
+          field.include?(value)
+        end
+      end
+    end
 
-    all.select { |m| m.send(key).include?(value) } || []
+    res
   end
 
   def stats(field)

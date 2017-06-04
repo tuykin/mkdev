@@ -30,6 +30,10 @@ class Movie
     "#{title} (#{country}; #{date}; #{genres.join('/')}) - #{duration} min"
   end
 
+  def inspect
+    "#{title} | #{country} | #{year} | #{producer} | #{genres} | #{actors} \n"
+  end
+
   private
 
   def parse_date(str)

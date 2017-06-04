@@ -17,8 +17,6 @@ class Movie
       month: get_month(params[:date]),
       date: parse_date(params[:date])
     }).each { |k, v| send("#{k}=", v) }
-
-    @collection.genres |= genres
   end
 
   def has_genre?(genre)

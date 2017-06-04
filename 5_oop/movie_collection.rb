@@ -5,14 +5,14 @@ class MovieCollection
   class FileNotFoundError < RuntimeError
   end
 
-  attr_accessor :genres
+  attr_reader :genres
 
   KEYS = %i(link title year country date genres duration rating producer actors)
 
   def initialize(file_name)
     raise FileNotFoundError unless File.file?(file_name)
-    @genres = []
     @movies = parse_file(file_name)
+    @genres = @movies.flat_map(&:genres).uniq
   end
 
   def all
@@ -23,25 +23,18 @@ class MovieCollection
     all.sort_by(&field)
   end
 
-  def filter(facet)
-    res = all
-    facet.each do |key, value|
-      res = res.select do |m|
+  def filter(facets)
+    facets.reduce(all) do |res, (key, value)|
+      res.select do |m|
         field = m.send(key)
 
-        if [Regexp, Integer, Range].include?(value.class)
-          if field.is_a?(Array)
-            field.grep(value).any?
-          else
-            value === field
-          end
+        if field.is_a?(Array)
+          field.grep(value).any?
         else
-          field.include?(value)
+          value === field
         end
       end
     end
-
-    res
   end
 
   def stats(field)
@@ -58,6 +51,6 @@ class MovieCollection
   private
 
   def parse_file(file_name)
-     CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.new(self, row) }
+    CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.new(self, row) }
   end
 end

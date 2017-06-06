@@ -1,3 +1,5 @@
+require 'date'
+
 class Movie
   class GenreNotFoundError < RuntimeError
   end
@@ -5,7 +7,7 @@ class Movie
   attr_accessor :country, :date, :month, :year, :duration, :link, :producer, :rating, :title,
                 :actors, :genres
 
-  def initialize(collection, params)
+  def initialize(collection = nil, params)
     @collection = collection
 
     params.to_h.merge({
@@ -20,7 +22,7 @@ class Movie
   end
 
   def has_genre?(genre)
-    raise GenreNotFoundError unless @collection.genres.include?(genre)
+    raise GenreNotFoundError unless @collection&.genres.include?(genre)
     genres.include?(genre)
   end
 

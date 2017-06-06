@@ -24,7 +24,9 @@ class MovieCollection
   end
 
   def filter(facets)
-    facets.reduce(all) do |res, (key, value)|
+    initial = by_period(facets.delete(:period))
+
+    facets.reduce(initial) do |res, (key, value)|
       res.select do |m|
         field = m.send(key)
 
@@ -35,6 +37,13 @@ class MovieCollection
         end
       end
     end
+  end
+
+  def by_period(period = nil)
+    return all if period.nil?
+
+    period_class = [period.to_s, 'movie'].map(&:capitalize).join
+    all.select { |m| m.class.name == period_class }
   end
 
   def stats(field)

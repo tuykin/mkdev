@@ -1,5 +1,6 @@
 # lib/netflix.rb
 class Netflix
-  def show
+  def show(movie)
+    "Now showing: #{movie.title}"
   end
 end

@@ -51,6 +51,6 @@ class MovieCollection
   private
 
   def parse_file(file_name)
-    CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.new(self, row) }
+    CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.build(self, row) }
   end
 end

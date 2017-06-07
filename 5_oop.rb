@@ -1,7 +1,10 @@
-load 'movie.rb'
-load 'movie_collection.rb'
+libdir = [File.dirname(__FILE__), 'lib'].join('/')
+$LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
-movies = MovieCollection.new('../movies.txt')
+require 'movie'
+require 'movie_collection'
+
+movies = MovieCollection.new('movies.txt')
 puts '*** Sorting ***'
 %i(link title year month date country genres duration rating producer actors).each do |field|
   puts movies.sort_by(field).first(5)

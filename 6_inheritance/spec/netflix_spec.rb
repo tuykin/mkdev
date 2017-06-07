@@ -23,6 +23,10 @@ RSpec.describe Netflix do
     end
   end
 
+  it '#how_much?' do
+    expect(@netflix.how_much?('The Terminator')).to eq(Netflix::PRICE[:modern])
+  end
+
   describe '#show' do
     before(:each) do
       @amount = 10

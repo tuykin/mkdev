@@ -42,8 +42,7 @@ class MovieCollection
   def by_period(period = nil)
     return all if period.nil?
 
-    period_class = [period.to_s, 'movie'].map(&:capitalize).join
-    all.select { |m| m.class.name == period_class }
+    all.select { |m| m.period == period }
   end
 
   def stats(field)

@@ -19,6 +19,10 @@ class Netflix < MovieCollection
     @money -= amount
   end
 
+  def how_much?(title)
+    PRICE[filter(title: title).first.period]
+  end
+
   def show(facets = {})
     raise NoPeriodSelected if facets[:period].nil?
     withdraw(PRICE[facets[:period]])

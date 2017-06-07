@@ -6,6 +6,7 @@ class Movie
 
   attr_accessor :country, :date, :month, :year, :duration, :link, :producer, :rating, :title,
                 :actors, :genres
+  attr_reader :collection
 
   def initialize(collection = nil, params)
     @collection = collection
@@ -26,6 +27,10 @@ class Movie
     else
       Movie.new(collection, params)
     end
+  end
+
+  def period
+    self.class.name.gsub('Movie', '').downcase.to_sym
   end
 
   def has_genre?(genre)

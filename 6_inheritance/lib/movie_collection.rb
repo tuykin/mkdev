@@ -23,7 +23,7 @@ class MovieCollection
     all.sort_by(&field)
   end
 
-  def filter(facets)
+  def filter(facets = {})
     initial = by_period(facets.delete(:period))
 
     facets.reduce(initial) do |res, (key, value)|

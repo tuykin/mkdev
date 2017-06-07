@@ -23,8 +23,10 @@ class MovieCollection
     all.sort_by(&field)
   end
 
-  def filter(facets)
-    facets.reduce(all) do |res, (key, value)|
+  def filter(facets = {})
+    initial = by_period(facets.delete(:period))
+
+    facets.reduce(initial) do |res, (key, value)|
       res.select do |m|
         field = m.send(key)
 
@@ -35,6 +37,12 @@ class MovieCollection
         end
       end
     end
+  end
+
+  def by_period(period = nil)
+    return all if period.nil?
+
+    all.select { |m| m.period == period }
   end
 
   def stats(field)
@@ -51,6 +59,6 @@ class MovieCollection
   private
 
   def parse_file(file_name)
-    CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.new(self, row) }
+    CSV.foreach(file_name, col_sep: '|', headers: KEYS).map { |row| Movie.build(self, row) }
   end
 end

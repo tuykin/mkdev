@@ -3,7 +3,7 @@ require 'movie'
 
 RSpec.describe Netflix do
   before(:each) do
-    @netflix = Netflix.new('../movies.txt')
+    @netflix = Netflix.new('movies.txt')
   end
 
   it '#initialize' do

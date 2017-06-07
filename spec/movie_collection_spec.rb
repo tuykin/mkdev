@@ -7,7 +7,7 @@ require 'new_movie'
 
 RSpec.describe MovieCollection do
   before(:each) do
-    @movies = MovieCollection.new('../movies.txt')
+    @movies = MovieCollection.new('movies.txt')
   end
 
   it '#initialize' do

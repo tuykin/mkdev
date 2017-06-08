@@ -60,5 +60,15 @@ RSpec.describe MovieCollection do
       let(:facets) { { genres: 'Comedy', period: :classic } }
       it { is_expected.to have_attributes(count: 6) }
     end
+
+    context 'several genres' do
+      let(:facets) { { genres: ['Comedy', 'Adventure'] } }
+      it { is_expected.to have_attributes(count: (a_value > 51)) }
+    end
+
+    context 'several genres' do
+      let(:facets) { { genres: ['Drama', 'Horror'] } }
+      it { is_expected.to have_attributes(count: (a_value > 6)) }
+    end
   end
 end

@@ -31,7 +31,7 @@ class MovieCollection
         field = m.send(key)
 
         if field.is_a?(Array)
-          field.grep(value).any?
+          [value].flatten.map { |v| field.grep(v).any? }.include?(true)
         else
           value === field
         end

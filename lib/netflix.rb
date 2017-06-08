@@ -23,6 +23,7 @@ class Netflix < MovieCollection
     withdraw(PRICE[facets[:period]])
     movie = filter(facets).sample
     puts "Now showing: #{movie.title}"
+    movie
   end
 
   private

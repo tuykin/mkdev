@@ -2,52 +2,75 @@ require 'netflix'
 require 'movie'
 
 RSpec.describe Netflix do
-  before(:each) do
-    @netflix = Netflix.new('movies.txt')
+  let(:netflix) { Netflix.new('movies.txt') }
+
+  describe '#initialize' do
+    subject { netflix }
+    it { is_expected.to have_attributes(money: 0) }
+
+    it { expect(netflix.all).to have_attributes(count: 250) }
   end
 
-  it '#initialize' do
-    expect(@netflix.all.count).to eq(250)
-    expect(@netflix.money).to eq(0)
+  describe '#pay' do
+    it { expect { netflix.pay(10) }.to change { netflix.money }.from(0).to(10) }
   end
 
-  it '#pay' do
-    @netflix.pay(1)
-    expect(@netflix.money).to eq(1)
-    expect(@netflix.pay(10)).to eq(@netflix.money)
-  end
+  # describe '#withdraw' do
+  #   it 'should raise error' do
+  #     expect { @netflix.withdraw(1) }.to raise_error(Netflix::NotEnoughMoney)
+  #   end
+  # end
 
-  describe '#withdraw' do
-    it 'should raise error' do
-      expect { @netflix.withdraw(1) }.to raise_error(Netflix::NotEnoughMoney)
-    end
-  end
-
-  it '#how_much?' do
-    expect(@netflix.how_much?('The Terminator')).to eq(Netflix::PRICE[:modern])
+  describe '#how_much?' do
+    it { expect(netflix.how_much?('The Terminator')).to eq(Netflix::PRICE[:modern]) }
   end
 
   describe '#show' do
-    before(:each) do
-      @amount = 10
-      @netflix.pay(@amount)
+    subject { netflix.show(filter) }
+
+    context 'no money' do
+      let(:filter) { { period: :classic }}
+      it { expect { subject }.to raise_error(Netflix::NotEnoughMoney) }
     end
 
-    it 'should raise error' do
-      expect { @netflix.show }.to raise_error(Netflix::NoPeriodSelected)
-    end
-
-    Netflix::PRICE.each do |period, price|
-      it "should withdraw #{price} for #{period} movie" do
-        expect { @netflix.show({ period: period }) }.to change { @netflix.money }
-          .from(@amount)
-          .to(@amount - price)
+    context 'with money' do
+      before do
+        allow(STDOUT).to receive(:puts)
+        netflix.pay(amount)
       end
-    end
+      let(:amount) { 10 }
 
-    it 'should return Movie#to_s' do
-      filter = { title: /Terminator/i, year: 1980..1990, period: :modern }
-      expect(@netflix.show(filter)).to eq('Now showing: The Terminator')
+      it { expect(netflix).to have_attributes(money: amount) }
+
+      context 'no period' do
+        let(:filter) { {} }
+        it { expect { subject }.to raise_error(Netflix::NoPeriodSelected) }
+      end
+
+      context 'withdraw for ancient movie' do
+        let(:filter) { {period: :ancient } }
+        it { expect { subject }.to change { netflix.money }.from(10).to(9) }
+      end
+
+      context 'withdraw for classic movie' do
+        let(:filter) { {period: :classic } }
+        it { expect { subject }.to change { netflix.money }.from(10).to(8.5) }
+      end
+
+      context 'withdraw for modern movie' do
+        let(:filter) { {period: :modern } }
+        it { expect { subject }.to change { netflix.money }.from(10).to(7) }
+      end
+
+      context 'withdraw for new movie' do
+        let(:filter) { {period: :new } }
+        it { expect { subject }.to change { netflix.money }.from(10).to(5) }
+      end
+
+      context 'check output' do
+        let(:filter) { { title: /Terminator/i, year: 1980..1990, period: :modern } }
+        it { expect { subject }.to output("Now showing: The Terminator\n").to_stdout }
+      end
     end
   end
 end

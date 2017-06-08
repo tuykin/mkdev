@@ -14,11 +14,6 @@ class Netflix < MovieCollection
     @money += amount
   end
 
-  def withdraw(amount)
-    raise NotEnoughMoney if @money < amount
-    @money -= amount
-  end
-
   def how_much?(title)
     PRICE[filter(title: title).first.period]
   end
@@ -27,6 +22,14 @@ class Netflix < MovieCollection
     raise NoPeriodSelected if facets[:period].nil?
     withdraw(PRICE[facets[:period]])
     movie = filter(facets).sample
-    "Now showing: #{movie.title}"
+    puts "Now showing: #{movie.title}"
   end
+
+  private
+
+  def withdraw(amount)
+    raise NotEnoughMoney if @money < amount
+    @money -= amount
+  end
+
 end

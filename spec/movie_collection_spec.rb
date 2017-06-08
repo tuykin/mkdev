@@ -6,36 +6,59 @@ require 'modern_movie'
 require 'new_movie'
 
 RSpec.describe MovieCollection do
-  before(:each) do
-    @movies = MovieCollection.new('movies.txt')
+  let(:movies) { MovieCollection.new('movies.txt') }
+
+  describe '#all' do
+    subject { movies.all }
+    it { is_expected.to be_an(Array).and have_attributes(count: 250) }
   end
 
-  it '#initialize' do
-    expect(@movies.all).to be_an(Array)
-    expect(@movies.all.count).to eq(250)
-  end
+  describe '#by_period' do
+    subject { movies.by_period(period) }
 
-  it '#by_period' do
-    expect(@movies.by_period().count).to eq(250)
-    expect(@movies.by_period(:ancient).count).to eq(19)
-    expect(@movies.by_period(:classic).count).to eq(56)
-    expect(@movies.by_period(:modern).count).to eq(95)
-    expect(@movies.by_period(:new).count).to eq(80)
+    context 'with empty period' do
+      let(:period) { nil }
+      it { is_expected.to have_attributes(count: 250) }
+    end
+
+    context 'ancient movies' do
+      let(:period) { :ancient }
+      it { is_expected.to have_attributes(count: 19) }
+    end
+
+    context 'classic movies' do
+      let(:period) { :classic }
+      it { is_expected.to have_attributes(count: 56) }
+    end
+
+    context 'modern movies' do
+      let(:period) { :modern }
+      it { is_expected.to have_attributes(count: 95) }
+    end
+
+    context 'new movies' do
+      let(:period) { :new }
+      it { is_expected.to have_attributes(count: 80) }
+    end
   end
 
   describe '#filter' do
-    it 'should return all' do
-      expect(@movies.filter({})).to eq(@movies.all)
+    subject { movies.filter(facets) }
+
+    context 'empty facet' do
+      let(:facets) { {} }
+      it { is_expected.to eq(movies.all) }
     end
 
-    %i(ancient classic modern new).each do |period|
-      it "should return #{period}" do
-        expect(@movies.filter(period: period)).to match_array(@movies.by_period(period))
-      end
+    context 'by period' do
+      let(:period) { :ancient }
+      let(:facets) { { period: period } }
+      it { is_expected.to match_array(movies.by_period(period)) }
     end
 
-    it 'should return classic comedies' do
-      expect(@movies.filter(genres: 'Comedy', period: :classic).count).to eq(6)
+    context 'several filters' do
+      let(:facets) { { genres: 'Comedy', period: :classic } }
+      it { is_expected.to have_attributes(count: 6) }
     end
   end
 end

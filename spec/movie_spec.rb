@@ -5,74 +5,88 @@ require 'modern_movie'
 require 'new_movie'
 
 RSpec.describe Movie do
-  it '#initialize' do
-    movie = Movie.new(movie_params)
-    expect(movie.title).to eq(movie_params[:title])
-    expect(movie.year).to eq(movie_params[:year])
-    expect(movie.actors).to eq(movie_params[:actors])
+  describe '#initialize' do
+    let(:movie) { Movie.new(movie_params) }
+    subject { movie }
+    it do
+      is_expected.to have_attributes(
+      title: movie_params[:title],
+      year: movie_params[:year],
+      actors: movie_params[:actors],
+      )
+    end
   end
 
   describe '#build' do
-    it 'Movie' do
-      year = '1899'
-      movie = Movie.build(movie_params_raw.merge(year: year))
-      expect(movie.year).to eq(year.to_i)
-      expect(movie.class).to eq(Movie)
+    let(:movie) { Movie.build(movie_params_raw.merge(year: year)) }
+    subject { movie }
+
+    context 'Movie' do
+      let(:year) { '1899' }
+      it { is_expected.to be_a(Movie).and have_attributes(year: 1899) }
     end
 
-    it 'AncientMovie' do
-      year = '1900'
-      movie = Movie.build(movie_params_raw.merge(year: year))
-      expect(movie.year).to eq(year.to_i)
-      expect(movie.class).to eq(AncientMovie)
+    context 'AncientMovie' do
+      let(:year) { '1900' }
+      it { is_expected.to be_a(AncientMovie).and have_attributes(year: 1900) }
     end
 
-    it 'ClassicMovie' do
-      year = '1945'
-      movie = Movie.build(movie_params_raw.merge(year: year))
-      expect(movie.year).to eq(year.to_i)
-      expect(movie.class).to eq(ClassicMovie)
+    context 'ClassicMovie' do
+      let(:year) { '1945' }
+      it { is_expected.to be_a(ClassicMovie).and have_attributes(year: 1945) }
     end
 
-    it 'ModernMovie' do
-      year = '1968'
-      movie = Movie.build(movie_params_raw.merge(year: year))
-      expect(movie.year).to eq(year.to_i)
-      expect(movie.class).to eq(ModernMovie)
+    context 'ModernMovie' do
+      let(:year) { '1968' }
+      it { is_expected.to be_a(ModernMovie).and have_attributes(year: 1968) }
     end
 
-    it 'NewMovie' do
-      year = '2000'
-      movie = Movie.build(movie_params_raw.merge(year: year))
-      expect(movie.year).to eq(year.to_i)
-      expect(movie.class).to eq(NewMovie)
+    context 'NewMovie' do
+      let(:year) { '2000' }
+      it { is_expected.to be_a(NewMovie).and have_attributes(year: 2000) }
     end
   end
 
   describe '#to_s' do
-    it 'AncientMovie' do
-      movie = AncientMovie.new(movie_params)
-      expect(movie.to_s).to eq("#{movie.title} - старый фильм (#{movie.year})")
+    context 'AncientMovie' do
+      let(:movie) { AncientMovie.new(movie_params) }
+      subject { movie.to_s }
+      it { is_expected.to eq('The Shawshank Redemption - старый фильм (1994)') }
     end
 
-    it 'ClassicMovie' do
-      movie = ClassicMovie.new(movie_params)
-      expect(movie.to_s).to eq("#{movie.title} — классический фильм, режиссёр #{movie.producer} ()")
+    context 'ClassicMovie' do
+      let(:movie) { ClassicMovie.new(movie_params) }
+      subject { movie.to_s }
+      it { is_expected.to eq('The Shawshank Redemption - классический фильм, режиссёр Frank Darabont ()') }
     end
 
-    it 'ModernMovie' do
-      movie = ModernMovie.new(movie_params)
-      expect(movie.to_s).to eq("#{movie.title} - современное кино: играют #{movie.actors}")
+    context 'ModernMovie' do
+      let(:movie) { ModernMovie.new(movie_params) }
+      subject { movie.to_s }
+      it { is_expected.to eq('The Shawshank Redemption - современное кино: играют Tim Robbins, Morgan Freeman, Bob Gunton') }
     end
 
-    it 'NewMovie' do
-      movie = NewMovie.new(movie_params)
-      expect(movie.to_s).to eq("#{movie.title} - новинка, вышло #{Date.today.year - movie.year} лет назад!")
+    context 'NewMovie' do
+      let(:movie) { NewMovie.new(movie_params) }
+      let(:years_ago) { Date.today.year - movie.year }
+      subject { movie.to_s }
+      it { is_expected.to eq("The Shawshank Redemption - новинка, вышло #{years_ago} лет назад!") }
     end
   end
 
   def movie_params
-    Movie.prepare_data(movie_params_raw)
+    {
+      link: "http://imdb.com/title/tt0111161/?ref_=chttp_tt_1",
+      title: "The Shawshank Redemption",
+      year: 1994,
+      country: "USA",
+      date: 1994-10-14,
+      genres: ['Crime', 'Drama'],
+      duration: 142,
+      rating: 9.3,
+      producer: 'Frank Darabont',
+      actors: ['Tim Robbins', 'Morgan Freeman', 'Bob Gunton']
+    }
   end
 
   def movie_params_raw

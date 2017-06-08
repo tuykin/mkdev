@@ -34,7 +34,7 @@ class Movie
   end
 
   def has_genre?(genre)
-    raise GenreNotFoundError unless @collection&.genres.include?(genre)
+    raise GenreNotFoundError unless @collection&.genres&.include?(genre)
     genres.include?(genre)
   end
 
@@ -45,6 +45,8 @@ class Movie
   def inspect
     "#{title} | #{country} | #{year} | #{producer} | #{genres} | #{actors} \n"
   end
+
+  private
 
   def self.prepare_data(params)
     params.to_h.merge({
@@ -57,8 +59,6 @@ class Movie
       date: parse_date(params[:date])
     })
   end
-
-  private
 
   def self.parse_date(str)
     (2 - str.count('-')).times { str << '-01' }

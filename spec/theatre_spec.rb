@@ -2,7 +2,7 @@ require 'theatre'
 require 'movie'
 
 RSpec.describe Theatre do
-  let(:theatre) { Theatre.new('movies.txt') }
+  let(:theatre) { described_class.new('movies.txt') }
 
   describe '#initialize' do
     subject { theatre.all }

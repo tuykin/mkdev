@@ -2,7 +2,7 @@ require 'netflix'
 require 'movie'
 
 RSpec.describe Netflix do
-  let(:netflix) { Netflix.new('movies.txt') }
+  let(:netflix) { described_class.new('movies.txt') }
 
   describe '#initialize' do
     subject { netflix }
@@ -15,14 +15,18 @@ RSpec.describe Netflix do
     it { expect { netflix.pay(10) }.to change { netflix.money }.from(0).to(10) }
   end
 
-  # describe '#withdraw' do
-  #   it 'should raise error' do
-  #     expect { @netflix.withdraw(1) }.to raise_error(Netflix::NotEnoughMoney)
-  #   end
-  # end
-
   describe '#how_much?' do
-    it { expect(netflix.how_much?('The Terminator')).to eq(Netflix::PRICE[:modern]) }
+    subject { netflix.how_much?(title) }
+
+    context 'for modern' do
+      let(:title) { 'The Terminator' }
+      it { is_expected.to eq(Netflix::PRICE[:modern]) }
+    end
+
+    context 'for absent movie' do
+      let(:title) { 'blablabla' }
+      it { expect { subject }.to raise_error(Netflix::MovieNotFound) }
+    end
   end
 
   describe '#show' do
@@ -44,7 +48,7 @@ RSpec.describe Netflix do
 
       context 'no period' do
         let(:filter) { {} }
-        it { expect { subject }.to raise_error(Netflix::NoPeriodSelected) }
+        it { expect { subject }.to raise_error(ArgumentError) }
       end
 
       context 'withdraw for ancient movie' do

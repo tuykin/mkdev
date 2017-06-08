@@ -20,7 +20,7 @@ class Movie
       AncientMovie.new(collection, params)
     when 1945...1968
       ClassicMovie.new(collection, params)
-    when 1958...2000
+    when 1968...2000
       ModernMovie.new(collection, params)
     when 2000..Date.today.year
       NewMovie.new(collection, params)
@@ -34,7 +34,7 @@ class Movie
   end
 
   def has_genre?(genre)
-    raise GenreNotFoundError unless @collection&.genres&.include?(genre)
+    raise GenreNotFoundError if @collection && !@collection.genres.include?(genre)
     genres.include?(genre)
   end
 
@@ -43,7 +43,7 @@ class Movie
   end
 
   def inspect
-    "#{title} | #{country} | #{year} | #{producer} | #{genres} | #{actors} \n"
+    "#{title} | #{country} | #{year} | #{producer} | #{genres} | #{actors}"
   end
 
   private

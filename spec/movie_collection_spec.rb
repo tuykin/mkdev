@@ -6,7 +6,7 @@ require 'modern_movie'
 require 'new_movie'
 
 RSpec.describe MovieCollection do
-  let(:movies) { MovieCollection.new('movies.txt') }
+  let(:movies) { described_class.new('movies.txt') }
 
   describe '#all' do
     subject { movies.all }
@@ -23,22 +23,30 @@ RSpec.describe MovieCollection do
 
     context 'ancient movies' do
       let(:period) { :ancient }
-      it { is_expected.to have_attributes(count: 19) }
+      it { expect(subject.map(&:period)).to all(be :ancient) }
+      it { expect(subject.map(&:class)).to all(be AncientMovie) }
+      it { expect(subject.map(&:year).to_set).to be_subset (1900...1945).to_set }
     end
 
     context 'classic movies' do
       let(:period) { :classic }
-      it { is_expected.to have_attributes(count: 56) }
+      it { expect(subject.map(&:period)).to all(be :classic) }
+      it { expect(subject.map(&:class)).to all(be ClassicMovie) }
+      it { expect(subject.map(&:year).to_set).to be_subset (1945...1968).to_set }
     end
 
     context 'modern movies' do
       let(:period) { :modern }
-      it { is_expected.to have_attributes(count: 95) }
+      it { expect(subject.map(&:period)).to all(be :modern) }
+      it { expect(subject.map(&:class)).to all(be ModernMovie) }
+      it { expect(subject.map(&:year).to_set).to be_subset (1968...2000).to_set }
     end
 
     context 'new movies' do
       let(:period) { :new }
-      it { is_expected.to have_attributes(count: 80) }
+      it { expect(subject.map(&:period)).to all(be :new) }
+      it { expect(subject.map(&:class)).to all(be NewMovie) }
+      it { expect(subject.map(&:year).to_set).to be_subset (2000...Date.today.year).to_set }
     end
   end
 
@@ -53,22 +61,23 @@ RSpec.describe MovieCollection do
     context 'by period' do
       let(:period) { :ancient }
       let(:facets) { { period: period } }
-      it { is_expected.to match_array(movies.by_period(period)) }
+      it { expect(subject.map(&:period)).to all(be period) }
     end
 
     context 'several filters' do
       let(:facets) { { genres: 'Comedy', period: :classic } }
-      it { is_expected.to have_attributes(count: 6) }
+      it { expect(subject.map(&:period)).to all(be :classic) }
+      it { expect(subject.map(&:genres)).to all(include('Comedy')) }
     end
 
     context 'several genres' do
       let(:facets) { { genres: ['Comedy', 'Adventure'] } }
-      it { is_expected.to have_attributes(count: (a_value > 51)) }
+      it { expect(subject.map(&:genres)).to all(include('Comedy').or include('Adventure')) }
     end
 
     context 'several genres' do
       let(:facets) { { genres: ['Drama', 'Horror'] } }
-      it { is_expected.to have_attributes(count: (a_value > 6)) }
+      it { expect(subject.map(&:genres)).to all(include('Drama').or include('Horror')) }
     end
   end
 end

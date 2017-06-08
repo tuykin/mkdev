@@ -6,7 +6,7 @@ require 'new_movie'
 
 RSpec.describe Movie do
   describe '#initialize' do
-    let(:movie) { Movie.new(movie_params) }
+    let(:movie) { described_class.new(movie_params) }
     subject { movie }
     it do
       is_expected.to have_attributes(
@@ -48,25 +48,28 @@ RSpec.describe Movie do
   end
 
   describe '#to_s' do
+    let(:movie) { type.new(movie_params) }
+
     context 'AncientMovie' do
-      let(:movie) { AncientMovie.new(movie_params) }
+      let(:type) { AncientMovie }
       subject { movie.to_s }
       it { is_expected.to eq('The Shawshank Redemption - старый фильм (1994)') }
     end
 
     context 'ClassicMovie' do
-      let(:movie) { ClassicMovie.new(movie_params) }
+      let(:type) { ClassicMovie }
       subject { movie.to_s }
       it { is_expected.to eq('The Shawshank Redemption - классический фильм, режиссёр Frank Darabont ()') }
     end
 
     context 'ModernMovie' do
-      let(:movie) { ModernMovie.new(movie_params) }
+      let(:type) { ModernMovie }
       subject { movie.to_s }
       it { is_expected.to eq('The Shawshank Redemption - современное кино: играют Tim Robbins, Morgan Freeman, Bob Gunton') }
     end
 
     context 'NewMovie' do
+      let(:type) { NewMovie }
       let(:movie) { NewMovie.new(movie_params) }
       let(:years_ago) { Date.today.year - movie.year }
       subject { movie.to_s }
@@ -74,7 +77,7 @@ RSpec.describe Movie do
     end
   end
 
-  def movie_params
+  let(:movie_params) do
     {
       link: "http://imdb.com/title/tt0111161/?ref_=chttp_tt_1",
       title: "The Shawshank Redemption",
@@ -89,7 +92,7 @@ RSpec.describe Movie do
     }
   end
 
-  def movie_params_raw
+  let(:movie_params_raw) do
     {
       link: "http://imdb.com/title/tt0111161/?ref_=chttp_tt_1",
       title: "The Shawshank Redemption",

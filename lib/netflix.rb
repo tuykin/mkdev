@@ -1,6 +1,6 @@
 class Netflix < MovieCollection
   class NotEnoughMoney < RuntimeError; end
-  class NoPeriodSelected < RuntimeError; end
+  class MovieNotFound < RuntimeError; end
 
   attr_reader :money
   PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }
@@ -15,13 +15,14 @@ class Netflix < MovieCollection
   end
 
   def how_much?(title)
-    PRICE[filter(title: title).first.period]
+    movie = filter(title: title).first
+    raise MovieNotFound if movie.nil?
+    PRICE[movie.period]
   end
 
-  def show(facets = {})
-    raise NoPeriodSelected if facets[:period].nil?
-    withdraw(PRICE[facets[:period]])
-    movie = filter(facets).sample
+  def show(period:, **facets)
+    withdraw(PRICE[period])
+    movie = filter(facets.merge(period: period)).sample
     puts "Now showing: #{movie.title}"
     movie
   end

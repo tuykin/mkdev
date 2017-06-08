@@ -59,7 +59,7 @@ RSpec.describe Movie do
     context 'ClassicMovie' do
       let(:type) { ClassicMovie }
       subject { movie.to_s }
-      it { is_expected.to eq('The Shawshank Redemption - классический фильм, режиссёр Frank Darabont ()') }
+      it { is_expected.to eq('The Shawshank Redemption - классический фильм, режиссёр Frank Darabont') }
     end
 
     context 'ModernMovie' do
@@ -75,6 +75,14 @@ RSpec.describe Movie do
       subject { movie.to_s }
       it { is_expected.to eq("The Shawshank Redemption - новинка, вышло #{years_ago} лет назад!") }
     end
+
+    context 'ClassicMovie with collection' do
+      let(:movies) { MovieCollection.new('movies.txt') }
+      let(:movie) { movies.filter(period: :classic, title: '12 Angry Men').first }
+      subject { movie.to_s }
+      it { is_expected.to eq('12 Angry Men - классический фильм, режиссёр Sidney Lumet (12 Angry Men, Network, Dog Day Afternoon)') }
+    end
+
   end
 
   let(:movie_params) do

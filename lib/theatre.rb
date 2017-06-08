@@ -5,11 +5,11 @@ class Theatre < MovieCollection
     time = Time.parse(time_str)
     movie = case time.hour
       when 8...12
-        sample_magic_rand(filter(period: :ancient))
+        sample_magic_rand(morning_movies)
       when 12...17
-        sample_magic_rand(filter(genres: ['Comedy', 'Adventure']))
+        sample_magic_rand(afternoon_movies)
       when 17...24
-        sample_magic_rand(filter(genres: ['Drama', 'Horror']))
+        sample_magic_rand(evening_movies)
       else
         nil
       end
@@ -20,16 +20,26 @@ class Theatre < MovieCollection
   def when?(title)
     movies = filter({ title: title })
     times = []
-    times << :morning if movies.map(&:period).include?(:ancient)
 
-    times << :afternoon if movies.map(&:genres).include?('Comedy')
-    times << :afternoon if movies.map(&:genres).include?('Adventure')
-
-    times << :evening if movies.map(&:genres).include?('Drama')
-    times << :evening if movies.map(&:genres).include?('Horror')
-
+    times << :morning if !morning_movies.select { |m| m.title == title }.empty?
+    times << :afternoon if !afternoon_movies.select { |m| m.title == title }.empty?
+    times << :evening if !evening_movies.select { |m| m.title == title }.empty?
     times << :never if times.empty?
 
-    times.uniq
+    times
+  end
+
+  private
+
+  def morning_movies
+    filter(period: :ancient)
+  end
+
+  def afternoon_movies
+    filter(genres: ['Comedy', 'Adventure'])
+  end
+
+  def evening_movies
+    filter(genres: ['Drama', 'Horror'])
   end
 end

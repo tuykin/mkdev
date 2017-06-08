@@ -28,7 +28,7 @@ RSpec.describe Theatre do
     context 'evening' do
       let(:time) { '18:00' }
       it { is_expected.to have_attributes(genres: include('Drama'))
-                      .or have_attributes(genres: include('Horror')) } # not reliable
+                      .or have_attributes(genres: include('Horror')) }
     end
 
     context 'night' do
@@ -47,7 +47,17 @@ RSpec.describe Theatre do
 
     context 'morning' do
       let(:title) { 'M' }
-      it { is_expected.to match_array([:morning]) }
+      it { is_expected.to match_array([:morning, :evening]) }
+    end
+
+    context 'afternoon' do
+      let(:title) { 'X-Men: Days of Future Past' }
+      it { is_expected.to match_array([:afternoon]) }
+    end
+
+    context 'evening' do
+      let(:title) { 'The Silence of the Lambs' }
+      it { is_expected.to match_array([:evening]) }
     end
   end
 end

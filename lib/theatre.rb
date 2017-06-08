@@ -5,11 +5,11 @@ class Theatre < MovieCollection
     time = Time.parse(time_str)
     movie = case time.hour
       when 8...12
-        filter(period: :ancient).sample
+        sample_magic_rand(filter(period: :ancient))
       when 12...17
-        filter(genres: ['Comedy', 'Adventure']).sample
+        sample_magic_rand(filter(genres: ['Comedy', 'Adventure']))
       when 17...24
-        filter(genres: ['Drama', 'Horror']).sample
+        sample_magic_rand(filter(genres: ['Drama', 'Horror']))
       else
         nil
       end

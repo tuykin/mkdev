@@ -56,6 +56,16 @@ class MovieCollection
     end
   end
 
+  protected
+
+  def sort_magic_rand(movies)
+    movies.sort_by { |m| m.rating * rand }
+  end
+
+  def sample_magic_rand(movies)
+    sort_magic_rand(movies).take(1).first
+  end
+
   private
 
   def parse_file(file_name)

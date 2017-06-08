@@ -22,7 +22,7 @@ class Netflix < MovieCollection
 
   def show(period:, **facets)
     withdraw(PRICE[period])
-    movie = filter(facets.merge(period: period)).sample
+    movie = sample_magic_rand(filter(facets.merge(period: period)))
     puts "Now showing: #{movie.title}"
     movie
   end

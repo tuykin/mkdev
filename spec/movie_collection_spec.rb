@@ -23,30 +23,38 @@ RSpec.describe MovieCollection do
 
     context 'ancient movies' do
       let(:period) { :ancient }
-      it { expect(subject.map(&:period)).to all(be :ancient) }
-      it { expect(subject.map(&:class)).to all(be AncientMovie) }
-      it { expect(subject.map(&:year).to_set).to be_subset (1900...1945).to_set }
+      it {
+        is_expected
+          .to all be_an(AncientMovie)
+          .and have_attributes(period: :ancient, year: match(1900...1945))
+      }
     end
 
     context 'classic movies' do
       let(:period) { :classic }
-      it { expect(subject.map(&:period)).to all(be :classic) }
-      it { expect(subject.map(&:class)).to all(be ClassicMovie) }
-      it { expect(subject.map(&:year).to_set).to be_subset (1945...1968).to_set }
+      it {
+        is_expected
+          .to all be_an(ClassicMovie)
+          .and have_attributes(period: :classic, year: match(1945...1968))
+      }
     end
 
     context 'modern movies' do
       let(:period) { :modern }
-      it { expect(subject.map(&:period)).to all(be :modern) }
-      it { expect(subject.map(&:class)).to all(be ModernMovie) }
-      it { expect(subject.map(&:year).to_set).to be_subset (1968...2000).to_set }
+      it {
+        is_expected
+          .to all be_an(ModernMovie)
+          .and have_attributes(period: :modern, year: match(1968...2000))
+      }
     end
 
     context 'new movies' do
       let(:period) { :new }
-      it { expect(subject.map(&:period)).to all(be :new) }
-      it { expect(subject.map(&:class)).to all(be NewMovie) }
-      it { expect(subject.map(&:year).to_set).to be_subset (2000...Date.today.year).to_set }
+      it {
+        is_expected
+          .to all be_an(NewMovie)
+          .and have_attributes(period: :new, year: match(2000...Date.today.year))
+      }
     end
   end
 

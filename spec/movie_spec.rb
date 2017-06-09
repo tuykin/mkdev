@@ -80,7 +80,7 @@ RSpec.describe Movie do
       let(:movies) { MovieCollection.new('movies.txt') }
       let(:movie) { movies.filter(period: :classic, title: '12 Angry Men').first }
       subject { movie.to_s }
-      it { is_expected.to eq('12 Angry Men - классический фильм, режиссёр Sidney Lumet (12 Angry Men, Network, Dog Day Afternoon)') }
+      it { is_expected.to eq('12 Angry Men - классический фильм, режиссёр Sidney Lumet (еще 3 его фильмов)') }
     end
 
   end

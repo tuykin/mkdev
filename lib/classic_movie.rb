@@ -3,14 +3,13 @@ class ClassicMovie < Movie
     if collection.nil? || another_movies.empty?
       "#{title} - классический фильм, режиссёр #{producer}"
     else
-      another_movie_titles = another_movies.map(&:title).join(', ')
-      "#{title} - классический фильм, режиссёр #{producer} (#{another_movie_titles})"
+      "#{title} - классический фильм, режиссёр #{producer} (еще #{another_movies.count} его фильмов)"
     end
   end
 
   private
 
   def another_movies
-    collection.filter(producer: producer).take(10)
+    collection.filter(producer: producer)
   end
 end

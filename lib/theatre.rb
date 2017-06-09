@@ -15,7 +15,7 @@ class Theatre < MovieCollection
 
   def when?(title)
     times = DAY_PERIODS.select do |day_period, time_period|
-      !send("#{day_period}_movies").select { |m| m.title == title }.empty?
+      send("#{day_period}_movies").any? { |m| m.title == title }
     end.keys
     times << :never if times.empty?
 

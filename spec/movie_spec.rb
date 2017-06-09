@@ -82,7 +82,64 @@ RSpec.describe Movie do
       subject { movie.to_s }
       it { is_expected.to eq('12 Angry Men - классический фильм, режиссёр Sidney Lumet (еще 3 его фильмов)') }
     end
+  end
 
+  describe '#fit?' do
+    let(:movie) { described_class.new(movie_params)}
+
+    context 'fit title by string' do
+      let(:facet) { { title: 'The Shawshank Redemption' } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'not fit title by string' do
+      let(:facet) { { title: 'The Shawshank' } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be false }
+    end
+
+    context 'fit title by regexp' do
+      let(:facet) { { title: /The Shawshank/i } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'fit year by interval' do
+      let(:facet) { { year: 1993...1995 } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'fit actors by string' do
+      let(:facet) { { actors: 'Morgan Freeman' } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'not fit actors by string' do
+      let(:facet) { { actors: 'Morgan' } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be false }
+    end
+
+    context 'fit actors by regexp' do
+      let(:facet) { { actors: /Morgan/i } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'fit genres by string' do
+      let(:facet) { { genres: 'Crime' } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
+
+    context 'fit genres by array' do
+      let(:facet) { { genres: ['Crime', 'Comedy'] } }
+      subject { movie.fit?(facet) }
+      it { is_expected.to be true }
+    end
   end
 
   let(:movie_params) do

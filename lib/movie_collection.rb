@@ -27,15 +27,7 @@ class MovieCollection
     initial = by_period(facets.delete(:period))
 
     facets.reduce(initial) do |res, (key, value)|
-      res.select do |m|
-        field = m.send(key)
-
-        if field.is_a?(Array)
-          [value].flatten.map { |v| field.grep(v).any? }.include?(true)
-        else
-          value === field
-        end
-      end
+      res.select { |m| m.fit?(key => value) }
     end
   end
 

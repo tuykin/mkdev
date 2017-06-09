@@ -38,6 +38,22 @@ class Movie
     genres.include?(genre)
   end
 
+  def fit?(facet)
+    key = facet.keys.first
+    value = facet.values.first
+    field = send(key)
+
+    if field.is_a?(Array)
+      if value.is_a?(Array)
+        (field & value).any?
+      else
+        field.any? { |i| value === i }
+      end
+    else
+      value === field
+    end
+  end
+
   def to_s
     "#{title} (#{country}; #{date}; #{genres.join('/')}) - #{duration} min"
   end

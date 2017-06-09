@@ -88,56 +88,65 @@ RSpec.describe Movie do
     let(:movie) { described_class.new(movie_params)}
 
     context 'fit title by string' do
-      let(:facet) { { title: 'The Shawshank Redemption' } }
-      subject { movie.fit?(facet) }
+      let(:key) { :title }
+      let(:value) { 'The Shawshank Redemption' }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'not fit title by string' do
-      let(:facet) { { title: 'The Shawshank' } }
-      subject { movie.fit?(facet) }
+      let(:key) { :title }
+      let(:value) { 'The Shawshank' }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be false }
     end
 
     context 'fit title by regexp' do
-      let(:facet) { { title: /The Shawshank/i } }
-      subject { movie.fit?(facet) }
+      let(:key) { :title }
+      let(:value) { /The Shawshank/i }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'fit year by interval' do
-      let(:facet) { { year: 1993...1995 } }
-      subject { movie.fit?(facet) }
+      let(:key) { :year }
+      let(:value) { 1993...1995 }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'fit actors by string' do
-      let(:facet) { { actors: 'Morgan Freeman' } }
-      subject { movie.fit?(facet) }
+      let(:key) { :actors }
+      let(:value) { 'Morgan Freeman' }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'not fit actors by string' do
-      let(:facet) { { actors: 'Morgan' } }
-      subject { movie.fit?(facet) }
+      let(:key) { :actors }
+      let(:value) { 'Morgan' }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be false }
     end
 
     context 'fit actors by regexp' do
-      let(:facet) { { actors: /Morgan/i } }
-      subject { movie.fit?(facet) }
+      let(:key) { :actors }
+      let(:value) { /Morgan Freeman/i }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'fit genres by string' do
-      let(:facet) { { genres: 'Crime' } }
-      subject { movie.fit?(facet) }
+      let(:key) { :genres }
+      let(:value) { 'Crime' }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
 
     context 'fit genres by array' do
-      let(:facet) { { genres: ['Crime', 'Comedy'] } }
-      subject { movie.fit?(facet) }
+      let(:key) { :genres }
+      let(:value) { ['Crime', 'Comedy'] }
+      subject { movie.fit?(key, value) }
       it { is_expected.to be true }
     end
   end

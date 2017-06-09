@@ -1,38 +1,28 @@
 require 'time'
 
 class Theatre < MovieCollection
-  DAY_PERIODS = { morning: 8...12, afternoon: 12...17, evening: 17...24 }
+  DAY_PERIODS = {
+    morning: { time: 8...12, filters: { period: :ancient } },
+    afternoon: { time: 12...17, filters: { genres: ['Comedy', 'Adventure'] } },
+    evening: { time: 17...24, filters: { genres: ['Drama', 'Horror'] } }
+  }
 
   def show(time_str)
     time = Time.parse(time_str)
-    day_period = DAY_PERIODS.select { |_, v| v.cover? time.hour }.keys.first
+    day_period = DAY_PERIODS.select { |_, v| v[:time].cover? time.hour }.values.first
     return nil if day_period.nil?
 
-    movie = sample_magic_rand(send("#{day_period}_movies"))
+    movie = sample_magic_rand(filter(day_period[:filters]))
     puts "Now showing: #{movie.title}"
     movie
   end
 
   def when?(title)
-    times = DAY_PERIODS.select do |day_period, time_period|
-      send("#{day_period}_movies").any? { |m| m.title == title }
+    times = DAY_PERIODS.select do |_, attrs|
+      filter(attrs[:filters].merge(title: title)).any?
     end.keys
     times << :never if times.empty?
 
     times
-  end
-
-  private
-
-  def morning_movies
-    filter(period: :ancient)
-  end
-
-  def afternoon_movies
-    filter(genres: ['Comedy', 'Adventure'])
-  end
-
-  def evening_movies
-    filter(genres: ['Drama', 'Horror'])
   end
 end

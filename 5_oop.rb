@@ -1,12 +1,9 @@
-libdir = [File.dirname(__FILE__), 'lib'].join('/')
-$LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
-
-require 'movie'
-require 'ancient_movie'
-require 'classic_movie'
-require 'modern_movie'
-require 'new_movie'
-require 'movie_collection'
+require_relative './lib/movie'
+require_relative './lib/ancient_movie'
+require_relative './lib/classic_movie'
+require_relative './lib/modern_movie'
+require_relative './lib/new_movie'
+require_relative './lib/movie_collection'
 
 movies = MovieCollection.new('movies.txt')
 puts '*** Sorting ***'

@@ -38,9 +38,7 @@ class Movie
     genres.include?(genre)
   end
 
-  def fit?(facet)
-    key = facet.keys.first
-    value = facet.values.first
+  def fit?(key, value)
     field = send(key)
 
     if field.is_a?(Array)

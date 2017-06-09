@@ -24,10 +24,8 @@ class MovieCollection
   end
 
   def filter(facets = {})
-    initial = by_period(facets.delete(:period))
-
-    facets.reduce(initial) do |res, (key, value)|
-      res.select { |m| m.fit?(key => value) }
+    facets.reduce(all) do |res, (key, value)|
+      res.select { |m| m.fit?(key, value) }
     end
   end
 

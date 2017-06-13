@@ -5,6 +5,8 @@ class MovieCollection
   class FileNotFoundError < RuntimeError
   end
 
+  include Enumerable
+
   attr_reader :genres
 
   KEYS = %i(link title year country date genres duration rating producer actors)

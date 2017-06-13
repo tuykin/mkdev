@@ -88,4 +88,11 @@ RSpec.describe MovieCollection do
       it { expect(subject.map(&:genres)).to all(include('Drama').or include('Horror')) }
     end
   end
+
+  describe 'Enumerable mixin' do
+    subject { movies }
+    it { is_expected.to respond_to :map }
+    it { is_expected.to respond_to :select }
+    it { is_expected.to respond_to :reject }
+  end
 end

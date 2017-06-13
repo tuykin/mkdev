@@ -6,6 +6,7 @@ RSpec.describe Netflix do
 
   describe '#initialize' do
     subject { netflix }
+
     it { is_expected.to have_attributes(money: 0) }
 
     it { expect(netflix.all).to have_attributes(count: 250) }
@@ -52,22 +53,22 @@ RSpec.describe Netflix do
       end
 
       context 'withdraw for ancient movie' do
-        let(:filter) { {period: :ancient } }
+        let(:filter) { { period: :ancient } }
         it { expect { subject }.to change { netflix.money }.from(10).to(9) }
       end
 
       context 'withdraw for classic movie' do
-        let(:filter) { {period: :classic } }
+        let(:filter) { { period: :classic } }
         it { expect { subject }.to change { netflix.money }.from(10).to(8.5) }
       end
 
       context 'withdraw for modern movie' do
-        let(:filter) { {period: :modern } }
+        let(:filter) { { period: :modern } }
         it { expect { subject }.to change { netflix.money }.from(10).to(7) }
       end
 
       context 'withdraw for new movie' do
-        let(:filter) { {period: :new } }
+        let(:filter) { { period: :new } }
         it { expect { subject }.to change { netflix.money }.from(10).to(5) }
       end
 
@@ -75,6 +76,21 @@ RSpec.describe Netflix do
         let(:filter) { { title: /Terminator/i, year: 1980..1990, period: :modern } }
         it { expect { subject }.to output("Now showing: The Terminator\n").to_stdout }
       end
+    end
+  end
+
+  describe '#cash' do
+    context 'one for all', skip: 'understand extending' do
+      let(:another_netflix) { described_class.new('movies.txt') }
+
+      before do
+        netflix.pay(5)
+        another_netflix.pay(10)
+      end
+
+      it { expect(netflix.cash).to eq(15) }
+      it { expect(another_netflix.cash).to eq(15) }
+      it { expect(Netflix.cash).to eq(15) }
     end
   end
 end

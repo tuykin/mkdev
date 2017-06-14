@@ -1,7 +1,5 @@
 require 'date'
 
-require 'imdb/movie_collection'
-
 module IMDB
   class Movie
     class GenreNotFoundError < RuntimeError
@@ -33,7 +31,7 @@ module IMDB
     end
 
     def period
-      self.class.name.gsub('Movie', '').downcase.to_sym
+      self.class.name.split('::').last.gsub('Movie', '').downcase.to_sym
     end
 
     def has_genre?(genre)

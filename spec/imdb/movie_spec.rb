@@ -3,6 +3,7 @@ require 'imdb/ancient_movie'
 require 'imdb/classic_movie'
 require 'imdb/modern_movie'
 require 'imdb/new_movie'
+require 'imdb/movie_collection'
 
 module IMDB
   describe Movie do

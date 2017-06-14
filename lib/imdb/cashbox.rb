@@ -8,13 +8,13 @@ module IMDB
     end
 
     def take(who)
-      if who == 'Bank'
-        puts 'Проведена инкассация'
-        reset_cashbox(0)
-      else
+      unless who == 'Bank'
         puts 'Полиция уже едет'
         raise Unauthorized
       end
+
+      puts 'Проведена инкассация'
+      reset_cashbox(0)
     end
 
     private

@@ -5,6 +5,10 @@ module IMDB
   describe Netflix do
     let(:netflix) { described_class.new('movies.txt') }
 
+    describe 'class' do
+      it { expect(described_class).to have_attributes(cash: 0) }
+    end
+
     describe '#initialize' do
       subject { netflix }
 
@@ -81,16 +85,17 @@ module IMDB
     end
 
     describe '#cash' do
-      context 'one for all', skip: 'understand extending' do
+      context 'one for all' do
         let(:another_netflix) { described_class.new('movies.txt') }
 
         before do
+          described_class.reset_cashbox
           netflix.pay(5)
           another_netflix.pay(10)
         end
 
-        it { expect(netflix.cash).to eq(15) }
-        it { expect(another_netflix.cash).to eq(15) }
+        it { expect(netflix.cash).to eq(5) }
+        it { expect(another_netflix.cash).to eq(10) }
         it { expect(described_class.cash).to eq(15) }
       end
     end

@@ -18,13 +18,13 @@ module IMDB
       params = prepare_data(params)
       case params[:year]
       when 1900...1945
-        AncientMovie.new(collection, params)
+        IMDB::AncientMovie.new(collection, params)
       when 1945...1968
-        ClassicMovie.new(collection, params)
+        IMDB::ClassicMovie.new(collection, params)
       when 1968...2000
-        ModernMovie.new(collection, params)
+        IMDB::ModernMovie.new(collection, params)
       when 2000..Date.today.year
-        NewMovie.new(collection, params)
+        IMDB::NewMovie.new(collection, params)
       else
         Movie.new(collection, params)
       end

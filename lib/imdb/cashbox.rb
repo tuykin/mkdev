@@ -17,7 +17,7 @@ module IMDB
       reset_cashbox(0)
     end
 
-    private
+    # private
 
     def withdraw(amount)
       raise NotEnoughMoney if @money < amount

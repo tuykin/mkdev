@@ -92,9 +92,21 @@ module IMDB
 
     describe 'Enumerable mixin' do
       subject { movies }
+      it { is_expected.to respond_to :each }
       it { is_expected.to respond_to :map }
       it { is_expected.to respond_to :select }
       it { is_expected.to respond_to :reject }
+
+      describe '#map' do
+        subject { movies.map(&:period).uniq }
+        it { is_expected.to match_array([:ancient, :classic, :modern, :new]) }
+      end
+
+      describe '#select' do
+        subject { movies.select { |m| m.title == 'The Terminator' } }
+        it { is_expected.to have_attributes(count: 1) }
+        it { expect(subject.first.title).to eq('The Terminator') }
+      end
     end
   end
 end

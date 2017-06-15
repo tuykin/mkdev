@@ -20,6 +20,10 @@ module IMDB
       @genres = @movies.flat_map(&:genres).uniq
     end
 
+    def each(&block)
+      @movies.each(&block)
+    end
+
     def all
       @movies
     end

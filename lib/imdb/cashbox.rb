@@ -1,5 +1,9 @@
+require 'money'
+
 module IMDB
   module Cashbox
+    I18n.enforce_available_locales = false
+
     class NotEnoughMoney < RuntimeError; end
     class Unauthorized < RuntimeError; end
 
@@ -20,16 +24,17 @@ module IMDB
     # private
 
     def withdraw(amount)
+      amount = Money.from_amount(amount)
       raise NotEnoughMoney if @money < amount
       @money -= amount
     end
 
     def fill(amount)
-      @money += amount
+      @money += Money.from_amount(amount)
     end
 
     def reset_cashbox(amount = 0)
-      @money = amount
+      @money = Money.from_amount(amount)
     end
   end
 end

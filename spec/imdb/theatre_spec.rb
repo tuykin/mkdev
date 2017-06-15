@@ -72,14 +72,14 @@ module IMDB
 
       context 'some cash' do
         let(:cash_amount) { 10 }
-        it { is_expected.to eq(10) }
+        it { is_expected.to eq(Money.from_amount(10)) }
       end
 
       context 'separate for each instance' do
         let(:cash_amount) { 20 }
         let(:another_theatre) { described_class.new('movies.txt', 5) }
-        it { is_expected.to eq(20) }
-        it { expect(another_theatre.cash).to eq(5) }
+        it { is_expected.to eq(Money.from_amount(20)) }
+        it { expect(another_theatre.cash).to eq(Money.from_amount(5)) }
       end
     end
 
@@ -88,18 +88,24 @@ module IMDB
 
       context 'morning' do
         let(:day_period) { :morning }
-        it { expect { subject }.to change { theatre.cash }.from(0).to(3) }
+        let(:was) { Money.from_amount(0) }
+        let(:become) { Money.from_amount(3) }
+        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
               # .and_return('You bought ticket to ...') }
       end
 
       context 'afternoon' do
         let(:day_period) { :afternoon }
-        it { expect { subject }.to change { theatre.cash }.from(0).to(5) }
+        let(:was) { Money.from_amount(0) }
+        let(:become) { Money.from_amount(5) }
+        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
       end
 
       context 'evening' do
         let(:day_period) { :evening }
-        it { expect { subject }.to change { theatre.cash }.from(0).to(10) }
+        let(:was) { Money.from_amount(0) }
+        let(:become) { Money.from_amount(10) }
+        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
       end
     end
 
@@ -109,7 +115,9 @@ module IMDB
 
       context 'Bank' do
         let(:who) { 'Bank' }
-        it { expect { subject }.to change { theatre.cash }.from(10).to(0).and output("Проведена инкассация\n").to_stdout }
+        let(:was) { Money.from_amount(10) }
+        let(:become) { Money.from_amount(0) }
+        it { expect { subject }.to change { theatre.cash }.from(was).to(become).and output("Проведена инкассация\n").to_stdout }
       end
 
       context 'someone else' do

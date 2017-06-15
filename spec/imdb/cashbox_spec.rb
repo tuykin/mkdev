@@ -16,7 +16,8 @@ module IMDB
 
     describe '#cash' do
       subject { test_obj.cash }
-      it { is_expected.to eq(0) }
+      let(:amount) { Money.new(0) }
+      it { is_expected.to be_a(Money).and eq(amount) }
     end
 
     describe '#take' do
@@ -25,7 +26,9 @@ module IMDB
 
       context 'Bank' do
         let(:who) { 'Bank' }
-        it { expect { subject }.to change { test_obj.cash }.from(10).to(0).and output("Проведена инкассация\n").to_stdout }
+        let(:was) { Money.from_amount(10) }
+        let(:become) { Money.from_amount(0) }
+        it { expect { subject }.to change { test_obj.cash }.from(was).to(become).and output("Проведена инкассация\n").to_stdout }
       end
 
       context 'someone else' do
@@ -33,5 +36,9 @@ module IMDB
         it { expect { subject }.to raise_error(Cashbox::Unauthorized).and output("Полиция уже едет\n").to_stdout }
       end
     end
+
+    # describe 'money' do
+    #   it { puts .format }
+    # end
   end
 end

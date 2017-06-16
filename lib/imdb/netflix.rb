@@ -9,22 +9,24 @@ require 'imdb/new_movie'
 module IMDB
   class Netflix < MovieCollection
     class MovieNotFound < RuntimeError; end
+    class NotEnoughMoney < RuntimeError; end
 
-    include Cashbox
     extend Cashbox
 
     PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }
 
-    reset_cashbox
-
     def initialize(file_name)
-      reset_cashbox
+      @account = Money.from_amount(0)
       super(file_name)
     end
 
     def pay(amount)
-      fill(amount)
+      @account += Money.from_amount(amount)
       self.class.fill(amount)
+    end
+
+    def cash
+      @account
     end
 
     def money
@@ -34,7 +36,7 @@ module IMDB
     def how_much?(title)
       movie = filter(title: title).first
       raise MovieNotFound if movie.nil?
-      PRICE[movie.period]
+      Money.from_amount(PRICE[movie.period])
     end
 
     def show(period:, **facets)
@@ -42,6 +44,14 @@ module IMDB
       movie = sample_magic_rand(filter(facets.merge(period: period)))
       puts "Now showing: #{movie.title}"
       movie
+    end
+
+    private
+
+    def withdraw(amount)
+      amount = Money.from_amount(amount)
+      raise NotEnoughMoney if @account < amount
+      @account -= amount
     end
   end
 end

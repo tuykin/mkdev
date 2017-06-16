@@ -28,7 +28,8 @@ module IMDB
 
       context 'for modern' do
         let(:title) { 'The Terminator' }
-        it { is_expected.to eq(described_class::PRICE[:modern]) }
+        let(:price) { Money.from_amount(described_class::PRICE[:modern]) }
+        it { is_expected.to eq(price) }
       end
 
       context 'for absent movie' do
@@ -99,7 +100,7 @@ module IMDB
         let(:another_netflix) { described_class.new('movies.txt') }
 
         before do
-          described_class.reset_cashbox
+          described_class.send(:reset_cashbox)
           netflix.pay(5)
           another_netflix.pay(10)
         end

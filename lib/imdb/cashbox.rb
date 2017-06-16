@@ -4,10 +4,10 @@ module IMDB
   module Cashbox
     I18n.enforce_available_locales = false
 
-    class NotEnoughMoney < RuntimeError; end
     class Unauthorized < RuntimeError; end
 
     def cash
+      init_money
       @money
     end
 
@@ -21,20 +21,20 @@ module IMDB
       reset_cashbox(0)
     end
 
-    # private
-
-    def withdraw(amount)
-      amount = Money.from_amount(amount)
-      raise NotEnoughMoney if @money < amount
-      @money -= amount
-    end
-
     def fill(amount)
+      init_money
+      return @money unless amount > 0
       @money += Money.from_amount(amount)
     end
 
+    private
+
     def reset_cashbox(amount = 0)
       @money = Money.from_amount(amount)
+    end
+
+    def init_money
+      @money ||= Money.from_amount(0)
     end
   end
 end

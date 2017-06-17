@@ -1,3 +1,5 @@
+require 'rspec/its'
+
 require 'imdb/movie'
 require 'imdb/movie_collection'
 require 'imdb/ancient_movie'
@@ -105,7 +107,7 @@ module IMDB
       describe '#select' do
         subject { movies.select { |m| m.title == 'The Terminator' } }
         it { is_expected.to have_attributes(count: 1) }
-        it { expect(subject.first.title).to eq('The Terminator') }
+        its('first.title') { is_expected.to eq('The Terminator') }
       end
     end
   end

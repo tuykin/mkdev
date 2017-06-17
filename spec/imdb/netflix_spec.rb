@@ -1,3 +1,5 @@
+require 'rspec/its'
+
 require 'imdb/netflix'
 require 'imdb/movie'
 
@@ -14,7 +16,7 @@ module IMDB
 
       it { is_expected.to have_attributes(account: 0) }
 
-      it { expect(netflix.all).to have_attributes(count: 250) }
+      its(:count) { is_expected.to eq(250) }
     end
 
     describe '#pay' do
@@ -52,8 +54,6 @@ module IMDB
           netflix.pay(amount)
         end
         let(:amount) { 10 }
-
-        it { expect(netflix).to have_attributes(account: Money.from_amount(amount)) }
 
         context 'no period' do
           let(:filter) { {} }

@@ -1,3 +1,5 @@
+require 'rspec/its'
+
 require 'imdb/theatre'
 require 'imdb/movie'
 
@@ -6,9 +8,9 @@ module IMDB
     let(:theatre) { described_class.new('movies.txt') }
 
     describe '#initialize' do
-      subject { theatre.all }
+      subject { theatre }
 
-      it { is_expected.to have_attributes(count: 250) }
+      its(:count) { is_expected.to eq(250) }
     end
 
     describe '#show' do
@@ -17,19 +19,17 @@ module IMDB
 
       context 'morning' do
         let(:time) { '8:00' }
-        it { is_expected.to have_attributes(period: :ancient)}
+        its(:period) { is_expected.to eq(:ancient) }
       end
 
       context 'afternoon' do
         let(:time) { '12:00' }
-        it { is_expected.to have_attributes(genres: include('Comedy'))
-                        .or have_attributes(genres: include('Adventure')) }
+        its(:genres) { is_expected.to include('Comedy').or(include('Adventure')) }
       end
 
       context 'evening' do
         let(:time) { '18:00' }
-        it { is_expected.to have_attributes(genres: include('Drama'))
-                        .or have_attributes(genres: include('Horror')) }
+        its(:genres) { is_expected.to include('Horror').or(include('Drama')) }
       end
 
       context 'night' do

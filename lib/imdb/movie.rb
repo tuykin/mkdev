@@ -2,8 +2,7 @@ require 'date'
 
 module IMDB
   class Movie
-    class GenreNotFoundError < RuntimeError
-    end
+    GenreNotFoundError = Class.new(RuntimeError)
 
     attr_accessor :country, :date, :month, :year, :duration, :link, :producer, :rating, :title,
                   :actors, :genres

@@ -1,17 +1,16 @@
 require 'csv'
 require 'date'
 
-require 'imdb/movie'
-require 'imdb/ancient_movie'
-require 'imdb/classic_movie'
-require 'imdb/modern_movie'
-require 'imdb/new_movie'
+require_relative 'movie'
+require_relative 'ancient_movie'
+require_relative 'classic_movie'
+require_relative 'modern_movie'
+require_relative 'new_movie'
 
 
 module IMDB
   class MovieCollection
-    class FileNotFoundError < RuntimeError
-    end
+    FileNotFoundError = Class.new(RuntimeError)
 
     include Enumerable
 

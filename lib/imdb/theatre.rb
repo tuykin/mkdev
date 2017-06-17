@@ -6,8 +6,7 @@ module IMDB
   class Theatre < MovieCollection
     include Cashbox
 
-    def initialize(file_name, money = 0)
-      reset_cashbox(money)
+    def initialize(file_name)
       super(file_name)
     end
 

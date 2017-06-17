@@ -4,11 +4,11 @@ module IMDB
   module Cashbox
     I18n.enforce_available_locales = false
 
-    class Unauthorized < RuntimeError; end
+    Unauthorized = Class.new(RuntimeError)
+    ShouldBePositive = Class.new(ArgumentError)
 
     def cash
-      init_money
-      @money
+      @money ||= Money.from_amount(0)
     end
 
     def take(who)
@@ -22,19 +22,14 @@ module IMDB
     end
 
     def fill(amount)
-      init_money
-      return @money unless amount > 0
-      @money += Money.from_amount(amount)
+      raise ShouldBePositive if amount < 0
+      @money = cash + Money.from_amount(amount)
     end
 
     private
 
     def reset_cashbox(amount = 0)
       @money = Money.from_amount(amount)
-    end
-
-    def init_money
-      @money ||= Money.from_amount(0)
     end
   end
 end

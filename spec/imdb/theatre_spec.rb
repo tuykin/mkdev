@@ -3,8 +3,7 @@ require 'imdb/movie'
 
 module IMDB
   describe Theatre do
-    let(:theatre) { described_class.new('movies.txt', cash_amount) }
-    let(:cash_amount) { 0 }
+    let(:theatre) { described_class.new('movies.txt') }
 
     describe '#initialize' do
       subject { theatre.all }
@@ -70,16 +69,16 @@ module IMDB
         it { is_expected.to eq(0) }
       end
 
-      context 'some cash' do
-        let(:cash_amount) { 10 }
-        it { is_expected.to eq(Money.from_amount(10)) }
-      end
-
       context 'separate for each instance' do
-        let(:cash_amount) { 20 }
-        let(:another_theatre) { described_class.new('movies.txt', 5) }
-        it { is_expected.to eq(Money.from_amount(20)) }
-        it { expect(another_theatre.cash).to eq(Money.from_amount(5)) }
+        before do
+          theatre.buy_ticket(:morning)
+          another_theatre.buy_ticket(:evening)
+        end
+
+        let(:another_theatre) { described_class.new('movies.txt') }
+
+        it { is_expected.to eq(Money.from_amount(3)) }
+        it { expect(another_theatre.cash).to eq(Money.from_amount(10)) }
       end
     end
 
@@ -90,7 +89,7 @@ module IMDB
         let(:day_period) { :morning }
         let(:was) { Money.from_amount(0) }
         let(:become) { Money.from_amount(3) }
-        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
+        it { expect { subject }.to change(theatre, :cash).from(was).to(become) }
               # .and_return('You bought ticket to ...') }
       end
 
@@ -98,26 +97,26 @@ module IMDB
         let(:day_period) { :afternoon }
         let(:was) { Money.from_amount(0) }
         let(:become) { Money.from_amount(5) }
-        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
+        it { expect { subject }.to change(theatre, :cash).from(was).to(become) }
       end
 
       context 'evening' do
         let(:day_period) { :evening }
         let(:was) { Money.from_amount(0) }
         let(:become) { Money.from_amount(10) }
-        it { expect { subject }.to change { theatre.cash }.from(was).to(become) }
+        it { expect { subject }.to change(theatre, :cash).from(was).to(become) }
       end
     end
 
     describe '#take' do
+      before { theatre.buy_ticket(:evening) }
       subject { theatre.take(who) }
-      let(:cash_amount) { 10 }
 
       context 'Bank' do
         let(:who) { 'Bank' }
         let(:was) { Money.from_amount(10) }
         let(:become) { Money.from_amount(0) }
-        it { expect { subject }.to change { theatre.cash }.from(was).to(become).and output("Проведена инкассация\n").to_stdout }
+        it { expect { subject }.to change(theatre, :cash).from(was).to(become).and output("Проведена инкассация\n").to_stdout }
       end
 
       context 'someone else' do

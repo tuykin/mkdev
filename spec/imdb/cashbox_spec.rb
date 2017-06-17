@@ -7,14 +7,9 @@ module IMDB
     let(:test_class) { Class.new { include Cashbox } }
     let(:test_obj) { test_class.new }
 
-    describe '#included_modules' do
-      subject { test_class.included_modules }
-      it { is_expected.to include(IMDB::Cashbox) }
-    end
-
     describe '#cash' do
       subject { test_obj.cash }
-      it { is_expected.to be_a(Money).and eq(0) }
+      it { is_expected.to eq(Money.from_amount(0)) }
     end
 
     describe '#take' do
@@ -24,7 +19,7 @@ module IMDB
       context 'Bank' do
         let(:who) { 'Bank' }
         it do
-          expect { subject }.to change { test_obj.cash }
+          expect { subject }.to change(test_obj, :cash)
             .from(Money.from_amount(10))
             .to(0)
             .and output("Проведена инкассация\n").to_stdout
@@ -42,22 +37,18 @@ module IMDB
 
       context 'add 0' do
         let(:amount) { 0 }
-        it { expect { subject }.to_not change { test_obj.cash } }
+        it { expect { subject }.to_not change(test_obj, :cash) }
       end
 
       context 'add positive' do
         let(:amount) { 10 }
-        it { expect { subject }.to change { test_obj.cash }.from(0).to(Money.from_amount(10)) }
+        it { expect { subject }.to change(test_obj, :cash).from(0).to(Money.from_amount(10)) }
       end
 
       context 'add negative' do
         let(:amount) { -10 }
-        it { expect { subject }.to_not change { test_obj.cash } }
+        it { expect { subject }.to raise_error(described_class::ShouldBePositive) }
       end
-    end
-
-    describe '#reset_cashbox' do
-
     end
   end
 end

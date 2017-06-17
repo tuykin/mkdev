@@ -12,7 +12,7 @@ module IMDB
     describe '#initialize' do
       subject { netflix }
 
-      it { is_expected.to have_attributes(money: 0) }
+      it { is_expected.to have_attributes(account: 0) }
 
       it { expect(netflix.all).to have_attributes(count: 250) }
     end
@@ -20,7 +20,7 @@ module IMDB
     describe '#pay' do
       let(:was) { Money.from_amount(0) }
       let(:become) { Money.from_amount(10) }
-      it { expect { netflix.pay(10) }.to change { netflix.money }.from(was).to(become) }
+      it { expect { netflix.pay(10) }.to change(netflix, :account).from(was).to(become) }
     end
 
     describe '#how_much?' do
@@ -53,7 +53,7 @@ module IMDB
         end
         let(:amount) { 10 }
 
-        it { expect(netflix).to have_attributes(money: Money.from_amount(amount)) }
+        it { expect(netflix).to have_attributes(account: Money.from_amount(amount)) }
 
         context 'no period' do
           let(:filter) { {} }
@@ -64,28 +64,28 @@ module IMDB
           let(:filter) { { period: :ancient } }
           let(:was) { Money.from_amount(10) }
           let(:become) { Money.from_amount(9) }
-          it { expect { subject }.to change { netflix.money }.from(was).to(become) }
+          it { expect { subject }.to change(netflix, :account).from(was).to(become) }
         end
 
         context 'withdraw for classic movie' do
           let(:filter) { { period: :classic } }
           let(:was) { Money.from_amount(10) }
           let(:become) { Money.from_amount(8.5) }
-          it { expect { subject }.to change { netflix.money }.from(was).to(become) }
+          it { expect { subject }.to change(netflix, :account).from(was).to(become) }
         end
 
         context 'withdraw for modern movie' do
           let(:filter) { { period: :modern } }
           let(:was) { Money.from_amount(10) }
           let(:become) { Money.from_amount(7) }
-          it { expect { subject }.to change { netflix.money }.from(was).to(become) }
+          it { expect { subject }.to change(netflix, :account).from(was).to(become) }
         end
 
         context 'withdraw for new movie' do
           let(:filter) { { period: :new } }
           let(:was) { Money.from_amount(10) }
           let(:become) { Money.from_amount(5) }
-          it { expect { subject }.to change { netflix.money }.from(was).to(become) }
+          it { expect { subject }.to change(netflix, :account).from(was).to(become) }
         end
 
         context 'check output' do
@@ -95,7 +95,7 @@ module IMDB
       end
     end
 
-    describe '#cash' do
+    describe '#account' do
       context 'one for all' do
         let(:another_netflix) { described_class.new('movies.txt') }
 
@@ -105,8 +105,8 @@ module IMDB
           another_netflix.pay(10)
         end
 
-        it { expect(netflix.cash).to eq(Money.from_amount(5)) }
-        it { expect(another_netflix.cash).to eq(Money.from_amount(10)) }
+        it { expect(netflix.account).to eq(Money.from_amount(5)) }
+        it { expect(another_netflix.account).to eq(Money.from_amount(10)) }
         it { expect(described_class.cash).to eq(Money.from_amount(15)) }
       end
     end

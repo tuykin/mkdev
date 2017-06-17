@@ -12,9 +12,9 @@ module IMDB
 
     DAY_PERIODS = {
       morning: { time: 8...12, price: 3, filters: { period: :ancient } },
-      afternoon: { time: 12...17, price: 5, filters: { genres: ['Comedy', 'Adventure'] } },
-      evening: { time: 17...24, price: 10, filters: { genres: ['Drama', 'Horror'] } }
-    }
+      afternoon: { time: 12...17, price: 5, filters: { genres: %w[Comedy Adventure] } },
+      evening: { time: 17...24, price: 10, filters: { genres: %w[Drama Horror] } }
+    }.freeze
 
     def show(time_str)
       time = Time.parse(time_str)
@@ -39,7 +39,7 @@ module IMDB
       fill(DAY_PERIODS[day_period][:price])
       movie = choose_movie(DAY_PERIODS[day_period])
       if movie.nil?
-        "No movie selected"
+        'No movie selected'
       else
         "You bought a ticket for #{movie.title}"
       end

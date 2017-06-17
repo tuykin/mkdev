@@ -13,7 +13,7 @@ module IMDB
 
     extend Cashbox
 
-    PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }
+    PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }.freeze
 
     attr_reader :account
 

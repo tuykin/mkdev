@@ -7,7 +7,6 @@ require_relative 'classic_movie'
 require_relative 'modern_movie'
 require_relative 'new_movie'
 
-
 module IMDB
   class MovieCollection
     FileNotFoundError = Class.new(RuntimeError)
@@ -16,7 +15,7 @@ module IMDB
 
     attr_reader :genres
 
-    KEYS = %i(link title year country date genres duration rating producer actors)
+    KEYS = %i[link title year country date genres duration rating producer actors].freeze
 
     def initialize(file_name)
       raise FileNotFoundError unless File.file?(file_name)
@@ -49,13 +48,13 @@ module IMDB
     end
 
     def stats(field)
-      return unless %i(month year country producer actors genres).include?(field)
+      return unless %i[month year country producer actors genres].include?(field)
       all.flat_map(&field).each_with_object(Hash.new(0)) { |o, h| h[o] += 1 }
     end
 
     def print_stats(field)
-      stats(field).sort.each do |field, count|
-        puts "#{field}: #{count}"
+      stats(field).sort.each do |field_name, count|
+        puts "#{field_name}: #{count}"
       end
     end
 

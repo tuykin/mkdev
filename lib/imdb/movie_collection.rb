@@ -31,10 +31,6 @@ module IMDB
       @movies
     end
 
-    def sort_by(field)
-      all.sort_by(&field)
-    end
-
     def filter(facets = {})
       facets.reduce(all) do |res, (key, value)|
         res.select { |m| m.fit?(key, value) }
@@ -44,12 +40,12 @@ module IMDB
     def by_period(period = nil)
       return all if period.nil?
 
-      all.select { |m| m.period == period }
+      select { |m| m.period == period }
     end
 
     def stats(field)
       return unless %i[month year country producer actors genres].include?(field)
-      all.flat_map(&field).each_with_object(Hash.new(0)) { |o, h| h[o] += 1 }
+      flat_map(&field).each_with_object(Hash.new(0)) { |o, h| h[o] += 1 }
     end
 
     def print_stats(field)

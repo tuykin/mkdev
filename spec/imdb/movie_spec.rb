@@ -151,6 +151,14 @@ module IMDB
         subject { movie.fit?(key, value) }
         it { is_expected.to be true }
       end
+
+      context 'fit period' do
+        let(:movie) { ClassicMovie.new(movie_params)}
+        let(:key) { :period }
+        let(:value) { :classic }
+        subject { movie.fit?(key, value) }
+        it { is_expected.to be true }
+      end
     end
 
     let(:movie_params) do

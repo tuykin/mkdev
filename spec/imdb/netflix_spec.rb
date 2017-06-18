@@ -41,10 +41,10 @@ module IMDB
     end
 
     describe '#show' do
-      subject { netflix.show(filter) }
+      subject { netflix.show filter }
 
       context 'no money' do
-        let(:filter) { { period: :classic }}
+        let(:filter) { { period: :classic } }
         it { expect { subject }.to raise_error(described_class::NotEnoughMoney) }
       end
 
@@ -54,11 +54,6 @@ module IMDB
           netflix.pay(amount)
         end
         let(:amount) { 10 }
-
-        context 'no period' do
-          let(:filter) { {} }
-          it { expect { subject }.to raise_error(ArgumentError) }
-        end
 
         context 'withdraw for ancient movie' do
           let(:filter) { { period: :ancient } }

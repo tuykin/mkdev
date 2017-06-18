@@ -33,9 +33,11 @@ module IMDB
       Money.from_amount(PRICE[movie.period])
     end
 
-    def show(period:, **facets)
-      withdraw(PRICE[period])
-      movie = sample_magic_rand(filter(facets.merge(period: period)))
+    def show(facets)
+      movie = sample_magic_rand(filter(facets))
+      return puts "Movie not found" if movie.nil?
+
+      withdraw(PRICE[movie.period])
       puts "Now showing: #{movie.title}"
       movie
     end

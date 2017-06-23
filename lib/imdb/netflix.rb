@@ -51,8 +51,10 @@ module IMDB
       movie
     end
 
-    def define_filter(filter_name, &block)
-      @filters[filter_name] = block
+    def define_filter(filter_name, from: nil, arg: nil, &block)
+      return @filters[filter_name] = block if from.nil?
+
+      @filters[filter_name] = @filters[from].curry.(arg)
     end
 
     private

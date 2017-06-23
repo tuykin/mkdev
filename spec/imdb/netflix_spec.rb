@@ -144,6 +144,22 @@ module IMDB
 
         it { is_expected.to have_attributes(genres: include('Sci-Fi'), year: 2010) }
       end
+
+      context 'specified filter' do
+        before do
+          netflix.define_filter(:new_sci_fi, &filter)
+          netflix.define_filter(:newest_sci_fi, from: :new_sci_fi, arg: 2014)
+        end
+
+        let(:filter_name) { :new_sci_fi }
+        let(:defined_filter) { { filter_name => true } }
+        let(:filter) { lambda { |year, movie| movie.genres.include?('Sci-Fi') && movie.year == year} }
+
+        it { expect(netflix.filters.keys).to match_array([:new_sci_fi, :newest_sci_fi]) }
+
+        it { expect(netflix.show(newest_sci_fi: true))
+              .to have_attributes(genres: include('Sci-Fi'), year: 2014) }
+      end
     end
   end
 end

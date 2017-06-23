@@ -36,8 +36,11 @@ module IMDB
 
     def show(facets = {}, &block)
       if key = (filters.keys & facets.keys).first
-        facets.delete(key)
+        defined_filter_arg = facets.delete(key)
         defined_filter_block = filters[key]
+        if defined_filter_block.arity == 2
+          defined_filter_block = defined_filter_block.curry.(defined_filter_arg)
+        end
       end
       block ||= defined_filter_block
       movie = sample_magic_rand(filter(facets, &block))

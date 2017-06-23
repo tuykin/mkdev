@@ -119,18 +119,31 @@ module IMDB
 
     describe '#define_filter' do
       before do
+        allow(STDOUT).to receive(:puts)
         netflix.define_filter(filter_name, &filter)
         netflix.pay(10)
       end
 
-      subject { netflix.show(filter_name => true) }
-      let(:filter_name) { :terminator }
-      let(:filter) do
-        lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+      subject { netflix.show(defined_filter) }
+
+      context 'simple' do
+        let(:filter_name) { :terminator }
+        let(:defined_filter) { { filter_name => true } }
+        let(:filter) do
+          lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+        end
+
+        it { expect(netflix.filters.keys).to eq([filter_name]) }
+        it { expect { subject }.to output("Now showing: Terminator 2: Judgment Day\n").to_stdout }
       end
 
-      it { expect(netflix.filters.keys).to eq([filter_name]) }
-      it { expect { subject }.to output("Now showing: Terminator 2: Judgment Day\n").to_stdout }
+      context 'with block param' do
+        let(:filter_name) { :new_sci_fi }
+        let(:filter) { lambda { |year, movie| movie.genres.include?('Sci-Fi') && movie.year == year} }
+        let(:defined_filter) { { filter_name => 2010 } }
+
+        it { is_expected.to have_attributes(genres: include('Sci-Fi'), year: 2010) }
+      end
     end
   end
 end

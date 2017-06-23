@@ -116,5 +116,21 @@ module IMDB
         it { expect(described_class.cash).to eq(Money.from_amount(15)) }
       end
     end
+
+    describe '#define_filter' do
+      before do
+        netflix.define_filter(filter_name, &filter)
+        netflix.pay(10)
+      end
+
+      subject { netflix.show(filter_name => true) }
+      let(:filter_name) { :terminator }
+      let(:filter) do
+        lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+      end
+
+      it { expect(netflix.filters.keys).to eq([filter_name]) }
+      it { expect { subject }.to output("Now showing: Terminator 2: Judgment Day\n").to_stdout }
+    end
   end
 end

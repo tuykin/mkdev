@@ -15,10 +15,11 @@ module IMDB
 
     PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }.freeze
 
-    attr_reader :account
+    attr_reader :account, :filters
 
     def initialize(file_name)
       @account = Money.from_amount(0)
+      @filters = {}
       super(file_name)
     end
 
@@ -34,12 +35,21 @@ module IMDB
     end
 
     def show(facets = {}, &block)
+      if key = (filters.keys & facets.keys).first
+        facets.delete(key)
+        defined_filter_block = filters[key]
+      end
+      block ||= defined_filter_block
       movie = sample_magic_rand(filter(facets, &block))
       return puts "Movie not found" if movie.nil?
 
       withdraw(PRICE[movie.period])
       puts "Now showing: #{movie.title}"
       movie
+    end
+
+    def define_filter(filter_name, &block)
+      @filters[filter_name] = block
     end
 
     private

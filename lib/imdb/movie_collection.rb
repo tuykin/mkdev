@@ -31,8 +31,8 @@ module IMDB
       @movies
     end
 
-    def filter(facets = {}, &block)
-      return select { |m| block.call(m) } if block_given?
+    def filter(facets = {})
+      return select { |m| yield(m) } if block_given?
 
       facets.reduce(all) do |res, (key, value)|
         res.select { |m| m.fit?(key, value) }

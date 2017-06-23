@@ -87,6 +87,17 @@ module IMDB
           let(:filter) { { title: /Terminator/i, year: 1980..1990, period: :modern } }
           it { expect { subject }.to output("Now showing: The Terminator\n").to_stdout }
         end
+
+        context 'with block' do
+          subject { netflix.show(&filter) }
+          let(:was) { Money.from_amount(10) }
+          let(:become) { Money.from_amount(7) }
+          let(:filter) do
+            lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+          end
+          it { expect { subject }.to output("Now showing: Terminator 2: Judgment Day\n").to_stdout
+                                 .and change(netflix, :account).from(was).to(become) }
+        end
       end
     end
 

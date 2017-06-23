@@ -62,7 +62,7 @@ module IMDB
     end
 
     describe '#filter' do
-      subject { movies.filter(facets) }
+      subject { movies.filter facets }
 
       context 'empty facet' do
         let(:facets) { {} }
@@ -90,6 +90,19 @@ module IMDB
         let(:facets) { { genres: ['Drama', 'Horror'] } }
         it { expect(subject.map(&:genres)).to all(include('Drama').or include('Horror')) }
       end
+
+      context 'with lambda' do
+        subject { movies.filter(&facets) }
+        let(:facets) do
+          lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+        end
+        it { expect(subject.map(&:period)).to all(be :modern) }
+        it { expect(subject.map(&:genres)).to all(include('Action')) }
+        it { expect(subject.map(&:title)).to all(include('Terminator')) }
+
+        it { expect(movies.filter { |movie| movie.title.include?('Terminator')}.map(&:title)).to all(include('Terminator')) }
+      end
+
     end
 
     describe 'Enumerable mixin' do

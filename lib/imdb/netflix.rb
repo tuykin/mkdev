@@ -33,8 +33,8 @@ module IMDB
       Money.from_amount(PRICE[movie.period])
     end
 
-    def show(facets)
-      movie = sample_magic_rand(filter(facets))
+    def show(facets = {}, &block)
+      movie = sample_magic_rand(filter(facets, &block))
       return puts "Movie not found" if movie.nil?
 
       withdraw(PRICE[movie.period])

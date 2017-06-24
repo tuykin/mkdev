@@ -88,76 +88,97 @@ module IMDB
 
     describe '#fit?' do
       let(:movie) { described_class.new(movie_params)}
+      subject { movie.fit?(key, value) }
 
-      context 'fit title by string' do
+      context 'title' do
         let(:key) { :title }
-        let(:value) { 'The Shawshank Redemption' }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
+
+        context 'fit by string' do
+          let(:value) { 'The Shawshank Redemption' }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit by string' do
+          let(:value) { 'The Shawshank' }
+          it { is_expected.to be false }
+        end
+
+        context 'fit by regexp' do
+          let(:value) { /The Shawshank/i }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit by regexp' do
+          let(:value) { /The Terminator/i }
+          it { is_expected.to be false }
+        end
       end
 
-      context 'not fit title by string' do
-        let(:key) { :title }
-        let(:value) { 'The Shawshank' }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be false }
-      end
-
-      context 'fit title by regexp' do
-        let(:key) { :title }
-        let(:value) { /The Shawshank/i }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
-      end
-
-      context 'fit year by interval' do
+      context 'year' do
         let(:key) { :year }
-        let(:value) { 1993...1995 }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
+
+        context 'fit by interval' do
+          let(:value) { 1993...1995 }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit by interval' do
+          let(:value) { 1993...1994 }
+          it { is_expected.to be false }
+        end
       end
 
-      context 'fit actors by string' do
+      context 'actors' do
         let(:key) { :actors }
-        let(:value) { 'Morgan Freeman' }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
+
+        context 'fit by string' do
+          let(:value) { 'Morgan Freeman' }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit by string' do
+          let(:value) { 'Morgan' }
+          it { is_expected.to be false }
+        end
+
+        context 'fit by regexp' do
+          let(:value) { /Morgan Freeman/i }
+          it { is_expected.to be true }
+        end
       end
 
-      context 'not fit actors by string' do
-        let(:key) { :actors }
-        let(:value) { 'Morgan' }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be false }
-      end
-
-      context 'fit actors by regexp' do
-        let(:key) { :actors }
-        let(:value) { /Morgan Freeman/i }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
-      end
-
-      context 'fit genres by string' do
+      context 'genres' do
         let(:key) { :genres }
-        let(:value) { 'Crime' }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
+
+        context 'fit by string' do
+          let(:value) { 'Crime' }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit by string' do
+          let(:value) { 'Sci-Fi' }
+          it { is_expected.to be false }
+        end
+
+        context 'fit by array' do
+          let(:value) { ['Sci-Fi', 'Detective'] }
+          it { is_expected.to be false }
+        end
       end
 
-      context 'fit genres by array' do
-        let(:key) { :genres }
-        let(:value) { ['Crime', 'Comedy'] }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
-      end
-
-      context 'fit period' do
+      context 'period' do
         let(:movie) { ClassicMovie.new(movie_params)}
         let(:key) { :period }
-        let(:value) { :classic }
-        subject { movie.fit?(key, value) }
-        it { is_expected.to be true }
+
+        context 'fit' do
+          let(:value) { :classic }
+          it { is_expected.to be true }
+        end
+
+        context 'not fit' do
+          let(:value) { :modern }
+          it { is_expected.to be false }
+        end
       end
     end
 

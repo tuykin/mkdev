@@ -35,14 +35,6 @@ module IMDB
     end
 
     def show(facets = {}, &block)
-      if key = (filters.keys & facets.keys).first
-        defined_filter_arg = facets.delete(key)
-        defined_filter_block = filters[key]
-        if defined_filter_block.arity == 2
-          defined_filter_block = defined_filter_block.curry.(defined_filter_arg)
-        end
-      end
-      block ||= defined_filter_block
       movie = sample_magic_rand(filter(facets, &block))
       return puts "Movie not found" if movie.nil?
 
@@ -54,7 +46,20 @@ module IMDB
     def define_filter(filter_name, from: nil, arg: nil, &block)
       return @filters[filter_name] = block if from.nil?
 
-      @filters[filter_name] = @filters[from].curry.(arg)
+      @filters[filter_name] = proc { |m| @filters[from].call(m, arg) }
+    end
+
+    def filter(facets = {}, &block)
+      res = block_given? ? select { |m| yield(m) } : all
+
+      custom_filters, movie_facets = facets.partition { |k, v| filters.keys.include?(k) }.map(&:to_h)
+
+      res = custom_filters.reduce(res) do |res, (key, value)|
+        filtering = proc { |m| filters[key].call(m, value) }
+        res.select { |m| filtering.call(m) }
+      end
+
+      super(movie_facets, res)
     end
 
     private

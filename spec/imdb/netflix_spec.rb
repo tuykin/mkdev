@@ -130,7 +130,7 @@ module IMDB
         let(:filter_name) { :terminator }
         let(:defined_filter) { { filter_name => true } }
         let(:filter) do
-          lambda { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
+          proc { |movie| movie.title.include?('Terminator') && movie.genres.include?('Action') && movie.year > 1990 }
         end
 
         it { expect(netflix.filters.keys).to eq([filter_name]) }
@@ -139,26 +139,43 @@ module IMDB
 
       context 'with block param' do
         let(:filter_name) { :new_sci_fi }
-        let(:filter) { lambda { |year, movie| movie.genres.include?('Sci-Fi') && movie.year == year} }
+        let(:filter) { proc { |movie, year| movie.genres.include?('Sci-Fi') && movie.year == year} }
         let(:defined_filter) { { filter_name => 2010 } }
 
         it { is_expected.to have_attributes(genres: include('Sci-Fi'), year: 2010) }
       end
 
-      context 'specified filter' do
+      context 'custom filter' do
         before do
-          netflix.define_filter(:new_sci_fi, &filter)
-          netflix.define_filter(:newest_sci_fi, from: :new_sci_fi, arg: 2014)
+          netflix.define_filter(filter_name, &filter)
+          netflix.define_filter(:newest_sci_fi, from: filter_name, arg: 2014)
         end
 
         let(:filter_name) { :new_sci_fi }
         let(:defined_filter) { { filter_name => true } }
-        let(:filter) { lambda { |year, movie| movie.genres.include?('Sci-Fi') && movie.year == year} }
+        let(:filter) { proc { |movie, year| movie.genres.include?('Sci-Fi') && movie.year == year} }
 
         it { expect(netflix.filters.keys).to match_array([:new_sci_fi, :newest_sci_fi]) }
 
         it { expect(netflix.show(newest_sci_fi: true))
               .to have_attributes(genres: include('Sci-Fi'), year: 2014) }
+      end
+    end
+
+    describe '#filter' do
+      context 'all-in-one' do
+        before do
+          netflix.define_filter(:sci_fi) { |m| m.genres.include?('Sci-Fi') }
+          netflix.define_filter(:higher_than) { |m, rating| m.rating > rating }
+        end
+
+        subject { netflix.filter(facets.merge(custom_filters)) { |m| m.country == 'USA' } }
+
+        let(:facets) { { year: 2000..2017 } }
+        let(:custom_filters) { { sci_fi: true, higher_than: 7 } }
+
+        it { is_expected.to all have_attributes(genres: include('Sci-Fi'), country: 'USA',
+                              year: match(2000..2017), rating: be > 7) }
       end
     end
   end

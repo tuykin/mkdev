@@ -1,5 +1,3 @@
-require 'rspec/its'
-
 require 'imdb/theatre'
 require 'imdb/movie'
 

@@ -185,5 +185,16 @@ module IMDB
       its(:horror) { is_expected.to all have_attributes(genres: include('Horror')) }
       its(:sci_fi) { is_expected.to all have_attributes(genres: include('Sci-Fi')) }
     end
+
+    describe '#by_country' do
+      subject { netflix.by_country }
+
+      its(:usa) { is_expected.to all have_attributes(country: 'USA') }
+      its(:new_zealand) { is_expected.to all have_attributes(country: 'New Zealand') }
+      its(:brazil) { is_expected.to all have_attributes(country: 'Brazil') }
+      its(:uk) { is_expected.to all have_attributes(country: 'UK') }
+      its(:ireland) { is_expected.to all have_attributes(country: 'Ireland') }
+      its(:hong_kong) { is_expected.to all have_attributes(country: 'Hong Kong') }
+    end
   end
 end

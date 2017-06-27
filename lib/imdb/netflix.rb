@@ -63,6 +63,10 @@ module IMDB
       super(movie_facets, res)
     end
 
+    def by_country
+      self
+    end
+
     private
 
     def withdraw(amount)
@@ -82,8 +86,21 @@ module IMDB
       obj
     end
 
+    def method_missing(method_name, *args, &block)
+      movies = self.filter { |m| m.country.downcase == normalize_country_name(method_name) }
+      if movies.empty?
+        super
+      else
+        movies
+      end
+    end
+
     def symbolize_genre(str)
       str.gsub('-','_').downcase
+    end
+
+    def normalize_country_name(sym)
+      sym.to_s.split('_').join(' ')
     end
   end
 end

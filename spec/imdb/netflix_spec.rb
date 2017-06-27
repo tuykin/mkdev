@@ -176,5 +176,14 @@ module IMDB
                               year: match(2000..2017), rating: be > 7) }
       end
     end
+
+    describe '#by_genre' do
+      subject { netflix.by_genre }
+
+      its(:comedy) { is_expected.to all have_attributes(genres: include('Comedy')) }
+      its(:drama) { is_expected.to all have_attributes(genres: include('Drama')) }
+      its(:horror) { is_expected.to all have_attributes(genres: include('Horror')) }
+      its(:sci_fi) { is_expected.to all have_attributes(genres: include('Sci-Fi')) }
+    end
   end
 end

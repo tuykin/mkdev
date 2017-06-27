@@ -15,12 +15,13 @@ module IMDB
 
     PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }.freeze
 
-    attr_reader :account, :filters
+    attr_reader :account, :filters, :by_genre
 
     def initialize(file_name)
       @account = Money.from_amount(0)
       @filters = {}
       super(file_name)
+      @by_genre = init_by_genre_object
     end
 
     def pay(amount)
@@ -68,6 +69,21 @@ module IMDB
       amount = Money.from_amount(amount)
       raise NotEnoughMoney if @account < amount
       @account -= amount
+    end
+
+    def init_by_genre_object
+      netflix = self
+      obj = Object.new
+      genres.each do |genre|
+        obj.define_singleton_method symbolize_genre(genre) do
+          netflix.filter(genres: genre)
+        end
+      end
+      obj
+    end
+
+    def symbolize_genre(str)
+      str.gsub('-','_').downcase
     end
   end
 end

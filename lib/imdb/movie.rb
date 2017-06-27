@@ -1,16 +1,29 @@
+require 'virtus'
 require 'date'
 
 module IMDB
   class Movie
+    include Virtus.model
+
     GenreNotFoundError = Class.new(RuntimeError)
 
-    attr_accessor :country, :date, :month, :year, :duration, :link, :producer, :rating, :title,
-                  :actors, :genres
+    attribute :country, String
+    attribute :date, Date
+    attribute :month, Integer
+    attribute :year, Integer
+    attribute :duration, Integer
+    attribute :link, String
+    attribute :producer, String
+    attribute :rating, Float
+    attribute :title, String
+    attribute :actors, Array[String]
+    attribute :genres, Array[String]
+
     attr_reader :collection
 
     def initialize(collection = nil, params)
       @collection = collection
-      params.each { |k, v| send("#{k}=", v) }
+      super(params)
     end
 
     def self.build(collection = nil, params)
@@ -25,7 +38,7 @@ module IMDB
       when 2000..Date.today.year
         IMDB::NewMovie.new(collection, params)
       else
-        Movie.new(collection, params)
+        IMDB::Movie.new(collection, params)
       end
     end
 

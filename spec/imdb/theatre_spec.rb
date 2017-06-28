@@ -122,5 +122,71 @@ module IMDB
         it { expect { subject }.to raise_error(Cashbox::Unauthorized).and output("Полиция уже едет\n").to_stdout }
       end
     end
+
+    describe '#new' do
+      subject { described_class.new('movies.txt', &definition) }
+
+      context 'hall definition' do
+        let(:definition) { proc { hall :red, title: 'Красный зал', places: 100 } }
+
+        it { is_expected.to have_attributes(halls: { red: { title: 'Красный зал', places: 100 } }) }
+      end
+
+      context 'period definition' do
+        let(:definition) do
+          proc do
+            halls
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              filters genre: 'Comedy', year: 1900..1980
+              price 10
+              hall :red, :blue
+            end
+          end
+        end
+
+        context 'raises no hall error' do
+          let(:halls) { proc { hall :red, title: 'Красный зал', places: 100 } }
+
+          xit { expect { subject }.to raise_error(IMDB::Theatre::HallIsNotDefined) }
+        end
+
+        context 'ok' do
+          let(:halls) do
+            proc do
+              hall :red, title: 'Красный зал', places: 100
+              hall :blue, title: 'Синий зал', places: 50
+            end
+          end
+
+          xit { expect(subject.halls[:red][:periods].first.description).to eq('Утренний сеанс')}
+        end
+      end
+    end
+
+    describe '#period' do
+      # period '09:00'..'11:00' do
+      #         description 'Утренний сеанс'
+      #         filters genre: 'Comedy', year: 1900..1980
+      #         price 10
+      #         hall :red, :blue
+      #       end
+      subject { theatre.period(time, &block) }
+
+      context 'time definition' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { nil }
+
+        its(:time) { is_expected.to have_attributes(from: '09:00', to: '11:00') }
+      end
+
+      context 'with description' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { description 'Утренний сеанс' } }
+
+        its(:description) { is_expected.to eq('Утренний сеанс') }
+      end
+    end
   end
 end

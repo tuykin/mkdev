@@ -4,10 +4,16 @@ require_relative 'movie_collection'
 
 module IMDB
   class Theatre < MovieCollection
+    HallIsNotDefined = Class.new(RuntimeError)
+
     include Cashbox
 
-    def initialize(file_name)
+    attr_reader :halls
+
+    def initialize(file_name, &block)
+      @halls = {}
       super(file_name)
+      instance_eval(&block) if block_given?
     end
 
     DAY_PERIODS = {
@@ -43,6 +49,24 @@ module IMDB
       else
         "You bought a ticket for #{movie.title}"
       end
+    end
+
+    def hall(key, params)
+      @halls[key] = params
+    end
+
+    def period(time, &block)
+      def description(name)
+        obj.description = name
+      end
+
+      obj = OpenStruct.new
+      obj.time = OpenStruct.new(from: time.first, to: time.last)
+
+      yield if block_given?
+
+      puts obj
+      obj
     end
 
     private

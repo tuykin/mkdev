@@ -8,10 +8,24 @@ require_relative 'new_movie'
 
 module IMDB
   class Netflix < MovieCollection
+    extend Cashbox
+
     MovieNotFound = Class.new(RuntimeError)
     NotEnoughMoney = Class.new(RuntimeError)
 
-    extend Cashbox
+    class Genres
+      def initialize(collection, genres)
+        genres.each do |genre|
+          define_singleton_method symbolize_genre(genre) do
+            collection.filter(genres: genre)
+          end
+        end
+      end
+
+      def symbolize_genre(str)
+        str.gsub('-','_').downcase
+      end
+    end
 
     PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }.freeze
 
@@ -21,7 +35,7 @@ module IMDB
       @account = Money.from_amount(0)
       @filters = {}
       super(file_name)
-      @by_genre = init_by_genre_object
+      @by_genre = Genres.new(self, self.genres)
     end
 
     def pay(amount)
@@ -75,17 +89,6 @@ module IMDB
       @account -= amount
     end
 
-    def init_by_genre_object
-      netflix = self
-      obj = Object.new
-      genres.each do |genre|
-        obj.define_singleton_method symbolize_genre(genre) do
-          netflix.filter(genres: genre)
-        end
-      end
-      obj
-    end
-
     def method_missing(method_name, *args, &block)
       movies = self.filter { |m| m.country.downcase == normalize_country_name(method_name) }
       if movies.empty?
@@ -93,10 +96,6 @@ module IMDB
       else
         movies
       end
-    end
-
-    def symbolize_genre(str)
-      str.gsub('-','_').downcase
     end
 
     def normalize_country_name(sym)

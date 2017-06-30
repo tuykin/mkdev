@@ -14,28 +14,54 @@ module IMDB
     NotEnoughMoney = Class.new(RuntimeError)
 
     class Genres
-      def initialize(collection, genres)
-        genres.each do |genre|
+      def initialize(collection)
+        collection.genres.each do |genre|
           define_singleton_method symbolize_genre(genre) do
             collection.filter(genres: genre)
           end
         end
       end
 
+      private
+
       def symbolize_genre(str)
         str.gsub('-','_').downcase
       end
     end
 
+    class Countries
+      def initialize(collection)
+        @collection = collection
+      end
+
+      def method_missing(method_name, *args, &block)
+        super if args.any?
+        super if block_given?
+
+        movies = @collection.filter { |m| m.country.downcase == normalize_country_name(method_name) }
+
+        super if movies.empty?
+
+        movies
+      end
+
+      private
+
+      def normalize_country_name(sym)
+        sym.to_s.split('_').join(' ')
+      end
+    end
+
     PRICE = { ancient: 1, classic: 1.5, modern: 3, new: 5 }.freeze
 
-    attr_reader :account, :filters, :by_genre
+    attr_reader :account, :filters, :by_genre, :by_country
 
     def initialize(file_name)
       @account = Money.from_amount(0)
       @filters = {}
       super(file_name)
-      @by_genre = Genres.new(self, self.genres)
+      @by_genre = Genres.new(self)
+      @by_country = Countries.new(self)
     end
 
     def pay(amount)
@@ -77,29 +103,12 @@ module IMDB
       super(movie_facets, res)
     end
 
-    def by_country
-      self
-    end
-
     private
 
     def withdraw(amount)
       amount = Money.from_amount(amount)
       raise NotEnoughMoney if @account < amount
       @account -= amount
-    end
-
-    def method_missing(method_name, *args, &block)
-      movies = self.filter { |m| m.country.downcase == normalize_country_name(method_name) }
-      if movies.empty?
-        super
-      else
-        movies
-      end
-    end
-
-    def normalize_country_name(sym)
-      sym.to_s.split('_').join(' ')
     end
   end
 end

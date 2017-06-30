@@ -195,6 +195,9 @@ module IMDB
       its(:uk) { is_expected.to all have_attributes(country: 'UK') }
       its(:ireland) { is_expected.to all have_attributes(country: 'Ireland') }
       its(:hong_kong) { is_expected.to all have_attributes(country: 'Hong Kong') }
+
+      it { expect { netflix.usa }.to raise_error NoMethodError }
+      it { expect { netflix.by_country.usa(1, 'test') }.to raise_error NoMethodError }
     end
   end
 end

@@ -7,8 +7,25 @@ module IMDB
 
     GenreNotFoundError = Class.new(RuntimeError)
 
+    class ArrayFromString < Virtus::Attribute
+      def coerce(value)
+        return value if value.is_a?(Array)
+        return value.split(',') if value.is_a?(String)
+      end
+    end
+
+    class FulfilledDate < Virtus::Attribute
+      def coerce(value)
+        return value if value.is_a?(Date)
+
+        value = value.to_s
+        (2 - value.count('-')).times { value << '-01' }
+        Date.parse(value)
+      end
+    end
+
     attribute :country, String
-    attribute :date, Date
+    attribute :date, FulfilledDate
     attribute :month, Integer
     attribute :year, Integer
     attribute :duration, Integer
@@ -16,8 +33,8 @@ module IMDB
     attribute :producer, String
     attribute :rating, Float
     attribute :title, String
-    attribute :actors, Array[String]
-    attribute :genres, Array[String]
+    attribute :actors, ArrayFromString
+    attribute :genres, ArrayFromString
 
     attr_reader :collection
 
@@ -28,7 +45,7 @@ module IMDB
 
     def self.build(collection = nil, params)
       params = prepare_data(params)
-      case params[:year]
+      case params[:year].to_i
       when 1900...1945
         IMDB::AncientMovie.new(collection, params)
       when 1945...1968
@@ -77,19 +94,8 @@ module IMDB
 
     def self.prepare_data(params)
       params.to_h.merge({
-        year: params[:year].to_i,
-        duration: params[:duration].to_i,
-        rating: params[:rating].to_f,
-        genres: params[:genres].split(','),
-        actors: params[:actors].split(','),
-        month: get_month(params[:date]),
-        date: parse_date(params[:date])
+        month: get_month(params[:date])
       })
-    end
-
-    def self.parse_date(str)
-      (2 - str.count('-')).times { str << '-01' }
-      Date.parse(str)
     end
 
     def self.get_month(str)

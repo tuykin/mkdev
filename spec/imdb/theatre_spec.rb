@@ -166,19 +166,13 @@ module IMDB
     end
 
     describe '#period' do
-      # period '09:00'..'11:00' do
-      #         description 'Утренний сеанс'
-      #         filters genre: 'Comedy', year: 1900..1980
-      #         price 10
-      #         hall :red, :blue
-      #       end
       subject { theatre.period(time, &block) }
 
       context 'time definition' do
         let(:time) { '09:00'..'11:00' }
         let(:block) { nil }
 
-        its(:time) { is_expected.to have_attributes(from: '09:00', to: '11:00') }
+        it { is_expected.to have_attributes(from: '09:00', to: '11:00') }
       end
 
       context 'with description' do
@@ -186,6 +180,49 @@ module IMDB
         let(:block) { proc { description 'Утренний сеанс' } }
 
         its(:description) { is_expected.to eq('Утренний сеанс') }
+      end
+
+      context 'with filters' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { filters genre: 'Comedy', year: 1900..1980 } }
+
+        it { expect(subject.filters[:genre]).to eq('Comedy') }
+        it { expect(subject.filters[:year]).to eq(1900..1980) }
+      end
+
+      context 'with price' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { price 10 } }
+
+        its(:price) { is_expected.to eq(10) }
+      end
+
+      context 'with hall' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { hall :red, :blue } }
+
+        its(:halls) { is_expected.to match_array([:red, :blue]) }
+      end
+
+      context 'all-in-one' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) do
+          proc do
+            description 'Утренний сеанс'
+            filters genre: 'Comedy', year: 1900..1980
+            price 10
+            hall :red, :blue
+          end
+        end
+
+        it do
+          is_expected.to have_attributes(
+              description: 'Утренний сеанс',
+              filters: { genre: 'Comedy', year: 1900..1980 },
+              price: 10,
+              halls: [:red, :blue]
+            )
+        end
       end
     end
   end

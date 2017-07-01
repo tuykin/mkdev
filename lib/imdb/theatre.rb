@@ -7,10 +7,11 @@ module IMDB
     include Cashbox
 
     HallIsNotDefined = Class.new(RuntimeError)
+    InvalidPeriod = Class.new(RuntimeError)
 
     class Period < OpenStruct
       def initialize(time, &block)
-        super(from: time.first, to: time.last)
+        super(time: time, from: time.first, to: time.last)
         instance_eval &block if block_given?
       end
 
@@ -40,6 +41,10 @@ module IMDB
 
       def halls
         @halls ||= []
+      end
+
+      def overlaps?(other)
+        (from...to).cover?(other.time.first) || (other.from...other.to).cover?(time.first)
       end
     end
 
@@ -95,6 +100,7 @@ module IMDB
 
       period = Period.new(time, &block)
       check_halls!(period.halls)
+      check_period!(period)
 
       @periods << period
       period
@@ -113,6 +119,11 @@ module IMDB
     def check_halls!(halls)
       undefined_halls = halls - @halls.keys
       raise HallIsNotDefined, undefined_halls unless undefined_halls.empty?
+    end
+
+    def check_period!(period)
+      overlaps = periods.select { |p| (p.halls & period.halls) && period.overlaps?(p)}
+      raise InvalidPeriod, period unless overlaps.empty?
     end
   end
 end

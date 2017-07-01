@@ -40,11 +40,11 @@ module IMDB
 
     def initialize(collection = nil, params)
       @collection = collection
+      month = self.class.get_month(params[:date])
       super(params)
     end
 
     def self.build(collection = nil, params)
-      params = prepare_data(params)
       case params[:year].to_i
       when 1900...1945
         IMDB::AncientMovie.new(collection, params)
@@ -92,14 +92,8 @@ module IMDB
 
     private
 
-    def self.prepare_data(params)
-      params.to_h.merge({
-        month: get_month(params[:date])
-      })
-    end
-
     def self.get_month(str)
-      str.split('-')[1]&.to_i || 0
+      str.to_s.split('-')[1]&.to_i || 0
     end
   end
 end

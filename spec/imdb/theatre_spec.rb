@@ -149,7 +149,7 @@ module IMDB
         context 'raises no hall error' do
           let(:halls) { proc { hall :red, title: 'Красный зал', places: 100 } }
 
-          xit { expect { subject }.to raise_error(IMDB::Theatre::HallIsNotDefined) }
+          it { expect { subject }.to raise_error(IMDB::Theatre::HallIsNotDefined) }
         end
 
         context 'ok' do
@@ -163,10 +163,39 @@ module IMDB
           xit { expect(subject.halls[:red][:periods].first.description).to eq('Утренний сеанс')}
         end
       end
+
+      context '2 periods' do
+        let(:definition) do
+          proc do
+            hall :red, title: 'Красный зал', places: 100
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              filters genre: 'Comedy', year: 1900..1980
+              price 10
+              hall :red
+            end
+
+            period '12:00'..'16:00' do
+              description 'Спецпоказ'
+              title 'The Terminator'
+              price 50
+              hall :red
+            end
+          end
+        end
+
+        its('periods.count') { is_expected.to eq(2) }
+      end
+
+      context 'periods intersection' do
+        # intersection case
+        # one period ends and other start at the same time
+      end
     end
 
-    describe '#period' do
-      subject { theatre.period(time, &block) }
+    describe 'Period.new' do
+      subject { Theatre::Period.new(time, &block) }
 
       context 'time definition' do
         let(:time) { '09:00'..'11:00' }

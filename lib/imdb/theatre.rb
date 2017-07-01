@@ -24,6 +24,11 @@ module IMDB
         @filters
       end
 
+      def title(value = nil)
+        @title = value unless value.nil?
+        @title
+      end
+
       def price(amount = nil)
         @price = amount unless amount.nil?
         @price

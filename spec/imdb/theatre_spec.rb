@@ -190,6 +190,13 @@ module IMDB
         it { expect(subject.filters[:year]).to eq(1900..1980) }
       end
 
+      context 'with title' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { title 'The Terminator' } }
+
+        it { expect(subject.title).to eq('The Terminator') }
+      end
+
       context 'with price' do
         let(:time) { '09:00'..'11:00' }
         let(:block) { proc { price 10 } }

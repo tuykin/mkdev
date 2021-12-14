@@ -122,5 +122,179 @@ module IMDB
         it { expect { subject }.to raise_error(Cashbox::Unauthorized).and output("Полиция уже едет\n").to_stdout }
       end
     end
+
+    describe '#new' do
+      subject { described_class.new('movies.txt', &definition) }
+
+      context 'hall definition' do
+        let(:definition) { proc { hall :red, title: 'Красный зал', places: 100 } }
+
+        it { is_expected.to have_attributes(halls: { red: { title: 'Красный зал', places: 100 } }) }
+      end
+
+      context 'period definition' do
+        let(:definition) do
+          proc do
+            halls
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              filters genre: 'Comedy', year: 1900..1980
+              price 10
+              hall :red, :blue
+            end
+          end
+        end
+
+        context 'raises no hall error' do
+          let(:halls) { proc { hall :red, title: 'Красный зал', places: 100 } }
+
+          it { expect { subject }.to raise_error(Theatre::HallIsNotDefined) }
+        end
+
+        context 'ok' do
+          let(:halls) do
+            proc do
+              hall :red, title: 'Красный зал', places: 100
+              hall :blue, title: 'Синий зал', places: 50
+            end
+          end
+
+          xit { expect(subject.halls[:red][:periods].first.description).to eq('Утренний сеанс')}
+        end
+      end
+
+      context '2 periods' do
+        let(:definition) do
+          proc do
+            hall :red, title: 'Красный зал', places: 100
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              filters genre: 'Comedy', year: 1900..1980
+              price 10
+              hall :red
+            end
+
+            period '12:00'..'16:00' do
+              description 'Спецпоказ'
+              title 'The Terminator'
+              price 50
+              hall :red
+            end
+          end
+        end
+
+        its('periods.count') { is_expected.to eq(2) }
+      end
+
+      context 'periods intersection' do
+        let(:definition) do
+          proc do
+            hall :red, title: 'Красный зал', places: 100
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              hall :red
+            end
+
+            period '10:00'..'12:00' do
+              description 'Спецпоказ'
+              hall :red
+            end
+          end
+        end
+
+        it { expect { subject }.to raise_error(Theatre::InvalidPeriod) }
+      end
+
+      context 'periods bordering' do
+        let(:definition) do
+          proc do
+            hall :red, title: 'Красный зал', places: 100
+
+            period '09:00'..'11:00' do
+              description 'Утренний сеанс'
+              hall :red
+            end
+
+            period '11:00'..'12:00' do
+              description 'Спецпоказ'
+              hall :red
+            end
+          end
+        end
+
+        its('periods.count') { is_expected.to eq(2) }
+      end
+    end
+
+    describe 'Period.new' do
+      subject { Theatre::Period.new(time, &block) }
+
+      context 'time definition' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { nil }
+
+        it { is_expected.to have_attributes(from: '09:00', to: '11:00') }
+      end
+
+      context 'with description' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { description 'Утренний сеанс' } }
+
+        its(:description) { is_expected.to eq('Утренний сеанс') }
+      end
+
+      context 'with filters' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { filters genre: 'Comedy', year: 1900..1980 } }
+
+        it { expect(subject.filters[:genre]).to eq('Comedy') }
+        it { expect(subject.filters[:year]).to eq(1900..1980) }
+      end
+
+      context 'with title' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { title 'The Terminator' } }
+
+        it { expect(subject.title).to eq('The Terminator') }
+      end
+
+      context 'with price' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { price 10 } }
+
+        its(:price) { is_expected.to eq(10) }
+      end
+
+      context 'with hall' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) { proc { hall :red, :blue } }
+
+        its(:halls) { is_expected.to match_array([:red, :blue]) }
+      end
+
+      context 'all-in-one' do
+        let(:time) { '09:00'..'11:00' }
+        let(:block) do
+          proc do
+            description 'Утренний сеанс'
+            filters genre: 'Comedy', year: 1900..1980
+            price 10
+            hall :red, :blue
+          end
+        end
+
+        it do
+          is_expected.to have_attributes(
+              description: 'Утренний сеанс',
+              filters: { genre: 'Comedy', year: 1900..1980 },
+              price: 10,
+              halls: [:red, :blue]
+            )
+        end
+      end
+    end
   end
 end

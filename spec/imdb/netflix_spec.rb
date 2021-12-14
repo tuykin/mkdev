@@ -176,5 +176,28 @@ module IMDB
                               year: match(2000..2017), rating: be > 7) }
       end
     end
+
+    describe '#by_genre' do
+      subject { netflix.by_genre }
+
+      its(:comedy) { is_expected.to all have_attributes(genres: include('Comedy')) }
+      its(:drama) { is_expected.to all have_attributes(genres: include('Drama')) }
+      its(:horror) { is_expected.to all have_attributes(genres: include('Horror')) }
+      its(:sci_fi) { is_expected.to all have_attributes(genres: include('Sci-Fi')) }
+    end
+
+    describe '#by_country' do
+      subject { netflix.by_country }
+
+      its(:usa) { is_expected.to all have_attributes(country: 'USA') }
+      its(:new_zealand) { is_expected.to all have_attributes(country: 'New Zealand') }
+      its(:brazil) { is_expected.to all have_attributes(country: 'Brazil') }
+      its(:uk) { is_expected.to all have_attributes(country: 'UK') }
+      its(:ireland) { is_expected.to all have_attributes(country: 'Ireland') }
+      its(:hong_kong) { is_expected.to all have_attributes(country: 'Hong Kong') }
+
+      it { expect { netflix.usa }.to raise_error NoMethodError }
+      it { expect { netflix.by_country.usa(1, 'test') }.to raise_error NoMethodError }
+    end
   end
 end
